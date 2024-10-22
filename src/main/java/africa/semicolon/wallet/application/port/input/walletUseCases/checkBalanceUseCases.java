@@ -1,4 +1,5 @@
 package africa.semicolon.wallet.application.port.input.walletUseCases;
 
-public class checkBalaceUseCases {
+public class checkBalanceUseCases {
+
 }

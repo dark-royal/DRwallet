@@ -1,17 +1,16 @@
 package africa.semicolon.wallet.application.service;
 
-import africa.semicolon.wallet.application.port.input.userUseCases.EditProfileUseCase;
-import africa.semicolon.wallet.application.port.input.userUseCases.FindUserByEmailUsesCase;
-import africa.semicolon.wallet.application.port.input.userUseCases.GetUserUseCase;
-import africa.semicolon.wallet.application.port.input.userUseCases.RegisterUserUseCase;
+
+import africa.semicolon.wallet.application.port.input.userUseCases.*;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
+import africa.semicolon.wallet.domain.exceptions.IncorrectPaaswordException;
 import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.models.User;
 
 import java.util.Optional;
 
-public class UserService implements RegisterUserUseCase, GetUserUseCase, EditProfileUseCase {
+public class UserService implements RegisterUserUseCase, GetUserUseCase, EditProfileByNameUseCase, EditProfileByEmailUseCase, EditProfileByPassword, EditProfileByPhoneNumber {
 
     private final UserOutputPort userOutputPort;
     private final FindUserByEmailUsesCase findUserByEmailUsesCase;
@@ -49,7 +48,57 @@ public class UserService implements RegisterUserUseCase, GetUserUseCase, EditPro
     }
 
     @Override
-    public User editProfile(User user) {
-        return null;
+    public User editProfileByName(User user) throws UserNotFoundException {
+        Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
+        if(foundUser.isPresent()){
+            foundUser.get().setName(user.getName());
+            return foundUser.get();
+        }
+        else{
+            throw new UserNotFoundException("User not found");
+        }
+    }
+
+    @Override
+    public User editProfileByEmail(User user) throws UserNotFoundException {
+        Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
+        if(foundUser.isPresent()){
+            foundUser.get().setEmail(user.getEmail());
+            return foundUser.get();
+        }
+        else{
+            throw new UserNotFoundException("User not found");
+        }
+    }
+
+    @Override
+    public User editProfileByPassword(User user) throws IncorrectPaaswordException, UserNotFoundException {
+        Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
+        if(foundUser.isPresent()){
+            if(user.getPassword().equals(foundUser.get().getPassword())){
+                foundUser.get().setPassword(user.getPassword());
+                return foundUser.get();
+            }
+            else{
+                throw new IncorrectPaaswordException("Incorrect Username or password");
+            }
+
+
+            }
+        else {
+            throw new UserNotFoundException("User not found");
+        }
+    }
+
+    @Override
+    public User editProfileByPhoneNumber(User user) throws UserNotFoundException {
+        Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
+        if(foundUser.isPresent()){
+            foundUser.get().setPhoneNumber(user.getPhoneNumber());
+            return foundUser.get();
+        }
+        else{
+            throw new UserNotFoundException("User not found");
+        }
     }
 }

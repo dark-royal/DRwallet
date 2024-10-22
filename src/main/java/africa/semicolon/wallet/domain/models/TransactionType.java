@@ -1,4 +1,5 @@
 package africa.semicolon.wallet.domain.models;
 
-public class TransactionType {
+public enum TransactionType {
+    CREDIT, DEBIT
 }

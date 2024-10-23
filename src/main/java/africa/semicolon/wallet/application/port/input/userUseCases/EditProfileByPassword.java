@@ -6,4 +6,5 @@ import africa.semicolon.wallet.domain.models.User;
 
 public interface EditProfileByPassword {
     User editProfileByPassword(User user) throws IncorrectPaaswordException, UserNotFoundException;
+
 }

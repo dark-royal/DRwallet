@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,7 +15,7 @@ public class InitializePaymentDto {
 
     @NotNull(message = "Amount cannot be null")
     @JsonProperty("amount")
-    private String amount;
+    private BigDecimal amount;
 
     @NotNull(message = "Email cannot be null")
     @JsonProperty("email")
@@ -27,7 +29,4 @@ public class InitializePaymentDto {
     @JsonProperty("plan")
     private String plan;
 
-    @NotNull(message = "Channels cannot be null")
-    @JsonProperty("channels")
-    private String[] channels;
 }

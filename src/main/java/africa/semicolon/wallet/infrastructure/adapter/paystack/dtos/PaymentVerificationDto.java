@@ -1,7 +1,7 @@
 package africa.semicolon.wallet.infrastructure.adapter.paystack.dtos;
 
 
-import africa.semicolon.wallet.infrastructure.adapter.paystack.models.AppUser;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -16,7 +16,7 @@ import java.util.Date;
 public class PaymentVerificationDto {
 
     @JsonProperty("member_id")
-    private AppUser user;
+    private UserEntity user;
 
     @JsonProperty("reference")
     private String reference;

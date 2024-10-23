@@ -1,9 +1,6 @@
 package africa.semicolon.wallet.infrastructure.adapter.persistence.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -17,5 +14,7 @@ public class WalletEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne
+    private UserEntity userId;
     private BigDecimal balance;
 }

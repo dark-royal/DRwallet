@@ -1,30 +1,34 @@
 package africa.semicolon.wallet.application.service;
 
-import africa.semicolon.wallet.application.port.input.userUseCases.FindUserByEmailUsesCase;
-import africa.semicolon.wallet.application.port.input.userUseCases.GetUserUseCase;
-import africa.semicolon.wallet.application.port.input.userUseCases.RegisterUserUseCase;
 import africa.semicolon.wallet.application.port.input.walletUseCases.CreateWalletUseCase;
+import africa.semicolon.wallet.application.port.input.walletUseCases.DepositToWalletUseCase;
 import africa.semicolon.wallet.application.port.input.walletUseCases.FindWalletByIdUsesCase;
-import africa.semicolon.wallet.application.port.output.UserOutputPort;
+import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
-import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
-import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.exceptions.WalletNotFoundException;
-import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.domain.models.Wallet;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.InitializePaymentDto;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.InitializePaymentResponse;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.PaymentVerificationResponse;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.WalletEntity;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.WalletRepository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
-public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCase {
+public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCase, DepositToWalletUseCase {
 
     private final WalletOutputPort walletOutputPort;
-    private final FindWalletByIdUsesCase findWalletByIdUseCase;
+
+        private final PaystackPaymentOutputPort paystackPaymentOutputPort;
+       private final WalletRepository walletRepository;
 
 
-    public WalletService(WalletOutputPort walletOutputPort, FindWalletByIdUsesCase findWalletByIdUseCase) {
+    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository) {
         this.walletOutputPort = walletOutputPort;
-        this.findWalletByIdUseCase = findWalletByIdUseCase;
+        this.paystackPaymentOutputPort = paystackPaymentOutputPort;
+        this.walletRepository = walletRepository;
     }
 
 
@@ -52,4 +56,26 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
            throw new WalletNotFoundException("Wallet not found");
        }
     }
-}
+
+    @Override
+    public void depositToWallet(WalletEntity wallet, BigDecimal amount) throws WalletNotFoundException {
+        wallet = walletRepository.findById(wallet.getUserId().getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
+                InitializePaymentDto initializePaymentDto = InitializePaymentDto.builder()
+                        .amount(amount)
+                        .email(wallet.getUserId().getEmail())
+                        .currency("USD")
+                        .build();
+               InitializePaymentResponse response = paystackPaymentOutputPort.initializePayment(initializePaymentDto);
+               response.setMessage("Deposit to wallet successful");
+               wallet.setBalance(wallet.getBalance().add(amount));
+               walletRepository.save(wallet);
+            }
+
+
+
+
+    }
+
+
+
+

@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateUserRequest {
+    private Long id;
     @NotEmpty(message = "name must not be empty")
     private String name;
     @NotEmpty(message = "password must not be empty")

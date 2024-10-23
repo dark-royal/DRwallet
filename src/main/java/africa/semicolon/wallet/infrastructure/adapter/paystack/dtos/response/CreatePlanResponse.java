@@ -1,6 +1,6 @@
 package africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response;
 
-import africa.semicolon.wallet.infrastructure.adapter.paystack.models.AppUser;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -16,7 +16,7 @@ import java.util.Date;
 public class CreatePlanResponse {
 
     @JsonProperty("member_id")
-    private AppUser user;
+    private UserEntity user;
 
     @JsonProperty("reference")
     private String reference;
@@ -38,12 +38,15 @@ public class CreatePlanResponse {
 
     @JsonProperty("currency")
     private String currency;
+    private boolean status;
 
     @JsonProperty("ip_address")
     private String ipAddress;
 
     @JsonProperty("pricing_plan_type")
     private String pricingPlanType;
+
+    private String message;
 
     @JsonProperty("created_on")
     private Date createdOn = new Date();

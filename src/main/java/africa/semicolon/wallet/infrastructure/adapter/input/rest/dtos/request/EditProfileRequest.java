@@ -1,6 +1,5 @@
-package africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response;
+package africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request;
 
-import africa.semicolon.wallet.domain.models.User;
 import lombok.*;
 
 @Builder
@@ -8,12 +7,10 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateUserResponse {
+public class EditProfileRequest {
     private Long id;
-    private User user;
     private String name;
     private String email;
     private String phoneNumber;
-
 
 }

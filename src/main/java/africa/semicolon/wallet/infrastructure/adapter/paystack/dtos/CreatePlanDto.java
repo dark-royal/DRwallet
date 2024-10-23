@@ -24,6 +24,6 @@ public class CreatePlanDto {
 
     @NotNull(message = "Amount cannot be null")
     @JsonProperty("amount")
-    @Digits(integer = 6, fraction = 2)
     private BigDecimal amount;
+
 }

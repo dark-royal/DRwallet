@@ -44,7 +44,7 @@ public class UserRestAdapter {
     }
 
     @PostMapping(value = "/users")
-    public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Validated final CreateUserRequest createUserRequest) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException {
+    public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Validated final CreateUserRequest createUserRequest) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
         User user = userRestMapper.toUser(createUserRequest);
         createUserRequest.setPassword(passwordEncoder.encode(user.getPassword()));
         user = registerUserUseCase.createUser(user);

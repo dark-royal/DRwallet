@@ -6,10 +6,13 @@ import africa.semicolon.wallet.application.port.output.WalletOutputPort;
 import africa.semicolon.wallet.application.service.TransactionService;
 import africa.semicolon.wallet.application.service.UserService;
 import africa.semicolon.wallet.application.service.WalletService;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.PayStackAdapter;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.repository.PaystackPaymentRepository;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.UserPersistenceAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.WalletPersistenceAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.UserPersistenceMapper;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.WalletPersistenceMapper;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.WalletPersistenceMapperImpl;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.WalletRepository;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +49,17 @@ public class BeanConfig {
         return new WalletPersistenceAdapter(walletRepository,walletPersistenceMapper);
     }
 
+
+    @Bean
+    public PaystackPaymentOutputPort paystackPaymentOutputPort(UserRepository userRepository, PaystackPaymentRepository paymentRepository) {
+        return new PayStackAdapter(userRepository,paymentRepository);
+    }
+
+    @Bean
+    public WalletPersistenceMapper walletPersistenceMapper() {
+        return new WalletPersistenceMapperImpl();
+
+    }
 
 
 }

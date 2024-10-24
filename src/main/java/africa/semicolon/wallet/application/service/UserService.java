@@ -8,21 +8,22 @@ import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.models.User;
-import africa.semicolon.wallet.domain.models.Wallet;
 
 
 import java.util.Optional;
 
-public class UserService implements RegisterUserUseCase, GetUserUseCase, EditProfileByNameUseCase, EditProfileByEmailUseCase, EditProfileByPassword, EditProfileByPhoneNumber,FindUserByEmailUsesCase {
+public class UserService implements RegisterUserUseCase, EditProfileByNameUseCase, EditProfileByEmailUseCase, EditProfileByPassword, EditProfileByPhoneNumber,FindUserByEmailUsesCase {
 
     private final UserOutputPort userOutputPort;
+    private final UserWalletMediator userWalletMediator;
 
-    private final WalletService walletService;
 
 
-    public UserService(UserOutputPort userOutputPort, WalletService walletService) {
+
+    public UserService(UserOutputPort userOutputPort, UserWalletMediator userWalletMediator) {
         this.userOutputPort = userOutputPort;
-        this.walletService = walletService;
+        this.userWalletMediator = userWalletMediator;
+
 
     }
 
@@ -37,17 +38,7 @@ public class UserService implements RegisterUserUseCase, GetUserUseCase, EditPro
     }
 
 
-    @Override
-    public User getUserById(String email) throws UserNotFoundException {
-        Optional<User> user = userOutputPort.getUserByEmail(email);
-        if(user.isPresent()){
-            return user.get();
-        }
-        else{
-            throw new UserNotFoundException("User not found");
-        }
 
-    }
 
     @Override
     public User editProfileByName(User user) throws UserNotFoundException {
@@ -108,14 +99,13 @@ public class UserService implements RegisterUserUseCase, GetUserUseCase, EditPro
         }
     }
 
-    @Override
-    public User createUser(User user) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
-        verifyUserExistence(user.getEmail());
-        Wallet wallet = walletService.createWallet(user.getWallet());
-        user.setWallet(wallet);
-        user = userOutputPort.saveUser(user);
-        return user;
-    }
+
+
+        @Override
+        public User createUser (User user) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
+            return userWalletMediator.createUserWithWallet(user);
+        }
+
 
     @Override
     public User findUserByEmail(String email) throws UserNotFoundException {

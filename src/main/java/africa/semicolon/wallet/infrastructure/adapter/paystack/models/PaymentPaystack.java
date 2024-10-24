@@ -48,11 +48,6 @@ public class PaymentPaystack {
 
     @Column(name = "ip_address")
     private String ipAddress;
-
-    @Column(name = "pricing_plan_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PricingPlanType pricingPlanType = PricingPlanType.BASIC;
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_on", updatable = false, nullable = false)

@@ -20,7 +20,7 @@ public class UserEntity {
     @Column(unique = true)
     private String email;
     @ManyToOne(fetch = FetchType.EAGER)
-    private WalletEntity wallet;
+    private WalletEntity walletId;
     private String password;
     private String phoneNumber;
     @CreationTimestamp

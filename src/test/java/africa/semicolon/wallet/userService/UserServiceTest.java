@@ -1,22 +1,21 @@
 package africa.semicolon.wallet.userService;
 
+import africa.semicolon.wallet.UserServiceParameterResolver;
 import africa.semicolon.wallet.application.service.UserService;
 import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.models.User;
-import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.CreateUserRequest;
-import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.CreateUserResponse;
-import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-
+@ExtendWith(UserServiceParameterResolver.class)
 public class UserServiceTest {
     private final UserService userService;
 
@@ -53,6 +52,29 @@ public class UserServiceTest {
         assertThat(user.getId()).isNotNull();
         User finalUser = user;
         assertThrows(UserAlreadyExistsException.class,()->userService.createUser(finalUser));
+    }
+    @Sql("/db/data.sql")
+    @Test
+    public void testThatUserCanEditProfileByName() throws UserNotFoundException {
+        User user = new User();
+        user.setEmail("praise@gmail.com");
+        user.setName("Hannah");
+        user = userService.editProfileByName(user);
+        assertEquals("Hannah", user.getName());
+
+
+    }
+
+    @Sql("/db/data.sql")
+    @Test
+    public void testThatUserCanEditProfileByPhoneNumber() throws UserNotFoundException {
+        User user = new User();
+        user.setEmail("praise@gmail.com");
+        user.setPhoneNumber("09187239875");
+        user = userService.editProfileByName(user);
+        assertEquals("09187239875", user.getPhoneNumber());
+
+
     }
 
 }

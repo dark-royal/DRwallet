@@ -1,13 +1,11 @@
 package africa.semicolon.wallet.infrastructure.adapter.paystack;
 
 import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
-import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.CreatePlanDto;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.InitializePaymentDto;
-import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.CreatePlanResponse;
-import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.InitializePaymentResponse;
-import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.PaymentVerificationResponse;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.*;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.models.PaymentPaystack;
-import africa.semicolon.wallet.infrastructure.adapter.paystack.models.PricingPlanType;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.models.Transfer;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.models.TransferRecipient;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.repository.PaystackPaymentRepository;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
@@ -23,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Optional;
 
@@ -43,42 +42,6 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
         this.paymentRepository = paymentRepository;
     }
 
-
-    @Override
-    public CreatePlanResponse createPlan(CreatePlanDto createPlanDto) {
-        CreatePlanResponse createPlanResponse = null;
-
-        try {
-            Gson gson = new Gson();
-            StringEntity postingString = new StringEntity(gson.toJson(createPlanDto));
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(PAYSTACK_INIT);
-            post.setEntity(postingString);
-            post.addHeader("Content-type", "application/json");
-            post.addHeader("Authorization", "Bearer " + paystackSecretKey);
-            StringBuilder result = new StringBuilder();
-            HttpResponse response = client.execute(post);
-
-            if (response.getStatusLine(). getStatusCode() == STATUS_CODE_CREATED) {
-
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    result.append(line);
-                }
-            } else {
-                throw new Exception ("Paystack is unable to process payment at the moment " +
-                        "or something wrong with request");
-            }
-
-            ObjectMapper mapper = new ObjectMapper();
-            createPlanResponse = mapper.readValue(result.toString(), CreatePlanResponse.class);
-        } catch(Throwable ex) {
-            ex.printStackTrace();
-        }
-        return createPlanResponse;
-    }
 
 
     @Override
@@ -148,7 +111,6 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
             } else if (paymentVerificationResponse. getData().getStatus().equals("success")) {
 
                 Optional<UserEntity> user = userRepository.findById(id);
-                PricingPlanType pricingPlanType = PricingPlanType.valueOf(plan.toUpperCase());
 
                 payment = PaymentPaystack.builder()
                         .user(user.get())
@@ -160,7 +122,6 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
                         .channel(paymentVerificationResponse.getData().getChannel())
                         .currency(paymentVerificationResponse.getData().getCurrency())
                         .ipAddress(paymentVerificationResponse.getData().getIpAddress())
-                        .pricingPlanType(pricingPlanType)
                         .createdOn(new Date())
                         .build();
             }
@@ -169,5 +130,26 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
         }
         paymentRepository.save(payment);
         return paymentVerificationResponse;
+    }
+
+    public static TransferRecipientResponse createRecipient(String name, String accountNumber, String bankCode) throws Exception {
+        TransferRecipient recipient = new TransferRecipient();
+        recipient.setName(name);
+        recipient.setAccountNumber(accountNumber);
+        recipient.setBankCode(bankCode);
+        recipient.setCurrency("NGN");
+
+        return recipient.create();
+    }
+
+    public TransferResponse initiateWithdrawal(BigDecimal amount, String recipientCode, String reason) throws Exception {
+        Transfer transfer = new Transfer();
+        transfer.setSource("balance");
+        transfer.setAmount(amount);
+        transfer.setRecipient(recipientCode);
+        transfer.setReason(reason);
+
+        return transfer.create();
+
     }
 }

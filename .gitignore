@@ -27,6 +27,8 @@ target/
 /.nb-gradle/
 build/
 !**/src/main/**/build/
+
+/src/main/java/africa/semicolon/wallet/infrastructure/adapter/paystack/constant/ApiConstants.java
 !**/src/test/**/build/
 
 ### VS Code ###

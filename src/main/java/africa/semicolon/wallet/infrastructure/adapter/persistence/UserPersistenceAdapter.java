@@ -26,8 +26,8 @@ public class UserPersistenceAdapter implements UserOutputPort {
     }
 
     @Override
-    public Optional<User> getUserByEmail( final String email) {
-        final Optional<UserEntity> userEntity = userRepository.findByEmail(email);
+    public Optional<User> getUserByEmail(  String email) {
+         Optional<UserEntity> userEntity = userRepository.findByEmail(email);
         return userEntity.map(userPersistenceMapper::toUser);
     }
 }

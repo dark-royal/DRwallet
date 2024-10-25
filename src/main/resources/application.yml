@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: Wallet
+server:
+  port: 2007
+  servlet:
+    context-path: /auth
+app:
+  keycloak:
+    admin:
+      clientId: admin_cli
+      clientSecret: IaYscf7zVFVoPUB6iCvxl6ilMDLaUEW3
+    realm: spring
+    serverUrl: http://localhost:9082

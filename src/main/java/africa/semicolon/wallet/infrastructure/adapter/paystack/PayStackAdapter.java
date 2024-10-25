@@ -9,9 +9,11 @@ import africa.semicolon.wallet.infrastructure.adapter.paystack.models.TransferRe
 import africa.semicolon.wallet.infrastructure.adapter.paystack.repository.PaystackPaymentRepository;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -20,12 +22,13 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Optional;
 
-import static africa.semicolon.wallet.infrastructure.adapter.paystack.constant.ApiConstants.*;
+import static africa.semicolon.wallet.infrastructure.adapter.paystack.constants.ApiConstants.*;
 
 
 
@@ -33,6 +36,7 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
     private final UserRepository userRepository;
     private final PaystackPaymentRepository paymentRepository;
+
 
     @Value("${applyforme.paystack.secret.key}")
     private String paystackSecretKey;
@@ -46,37 +50,37 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
     @Override
     public InitializePaymentResponse initializePayment(InitializePaymentDto initializePaymentDto) {
-        InitializePaymentResponse initializePaymentResponse = null;
 
         try {
             Gson gson = new Gson();
-            StringEntity postingString  = new StringEntity(gson.toJson(initializePaymentDto));
+            StringEntity postingString = new StringEntity(gson.toJson(initializePaymentDto));
             HttpClient client = HttpClientBuilder.create().build();
             HttpPost post = new HttpPost(PAYSTACK_INITIALIZE_PAY);
             post.setEntity(postingString);
             post.addHeader("Content-type", "application/json");
             post.addHeader("Authorization", "Bearer " + paystackSecretKey);
-            StringBuilder result = new StringBuilder();
+
             HttpResponse response = client.execute(post);
 
-            if (response.getStatusLine(). getStatusCode() == STATUS_CODE_OK) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                try (BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = rd.readLine()) != null) {
+                        result.append(line);
+                    }
 
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    result.append(line);
+                    ObjectMapper mapper = new ObjectMapper();
+                    return mapper.readValue(result.toString(), InitializePaymentResponse.class);
                 }
             } else {
-                throw new Exception("Paystack is unable to initialize payment at the moment");
+                // Handle error responses
+                throw new RuntimeException("Paystack API returned an error: " + response.getStatusLine().getStatusCode());
             }
-
-            ObjectMapper mapper = new ObjectMapper();
-            initializePaymentResponse = mapper. readValue(result.toString(), InitializePaymentResponse.class);
-        } catch(Throwable ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            // Handle general exceptions
+            throw new RuntimeException("Error initializing payment: " + e.getMessage(), e);
         }
-        return initializePaymentResponse;
     }
 
     @Override

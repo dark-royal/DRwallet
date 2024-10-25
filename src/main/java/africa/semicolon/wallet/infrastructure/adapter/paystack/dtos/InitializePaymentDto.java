@@ -25,8 +25,5 @@ public class InitializePaymentDto {
     @JsonProperty("currency")
     private String currency;
 
-    @NotNull(message = "Plan cannot be null")
-    @JsonProperty("plan")
-    private String plan;
 
 }

@@ -8,6 +8,5 @@ import java.math.BigDecimal;
 
 public interface DepositToWalletUseCase {
 
-
-    void depositToWallet(WalletEntity wallet, BigDecimal amount) throws WalletNotFoundException;
+    void depositToWallet(WalletEntity wallet, BigDecimal amount,Long userId) throws WalletNotFoundException;
 }

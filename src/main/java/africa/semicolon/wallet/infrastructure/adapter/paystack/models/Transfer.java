@@ -16,7 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import static africa.semicolon.wallet.infrastructure.adapter.paystack.constant.ApiConstants.PAYSTACK_SECRET_KEY;
+import static africa.semicolon.wallet.infrastructure.adapter.paystack.constants.ApiConstants.PAYSTACK_SECRET_KEY;
+
 
 @Setter
 @Getter

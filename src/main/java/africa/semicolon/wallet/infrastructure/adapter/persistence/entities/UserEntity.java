@@ -19,13 +19,11 @@ public class UserEntity {
     private String name;
     @Column(unique = true)
     private String email;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private WalletEntity walletId;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "wallet_id_id")
+    private WalletEntity wallet;
     private String password;
     private String phoneNumber;
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_on", updatable = false, nullable = false)
     private Date createdOn;
-
 }

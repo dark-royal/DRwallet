@@ -8,6 +8,7 @@ import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.domain.models.Wallet;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.WalletEntity;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.WalletRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WalletServiceTest {
     @Autowired
     private  WalletService walletService;
+    @Autowired
+    private WalletRepository walletRepository;
 
 
     @Test
@@ -46,15 +49,18 @@ public class WalletServiceTest {
         assertThrows(WalletAlreadyExistAlreadyException.class,()->walletService.createWallet(wallet));
 
     }
-
-    @Test
     @Sql("/db/data.sql")
-    public void testThatFundsCanBeDepositedToTheWallet(){
+    @Test
+    public void testThatFundsCanBeDepositedToTheWallet() throws Exception {
         WalletEntity wallet = new WalletEntity();
-        wallet.setId(1L);
-        wallet.setUserId(new UserEntity());
+        UserEntity user = new UserEntity();
+        user.setId(501L);
+        wallet.setId(301L);
         wallet.setBalance(BigDecimal.ZERO);
-        walletService.depositToWallet(wallet, BigDecimal.valueOf(1000));
-        assertEquals(BigDecimal.valueOf(1000), wallet.getBalance());
+        walletService.depositToWallet(wallet, BigDecimal.valueOf(1000),user.getId());
+        WalletEntity updatedWallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new Exception("Wallet not found after deposit"));
+
+        // Verify the deposit amount
+        assertEquals(BigDecimal.valueOf(1000), updatedWallet.getBalance());
     }
 }

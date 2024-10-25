@@ -40,8 +40,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public WalletService walletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserWalletMediator userWalletMediator,PayStackAdapter payStackAdapter) {
-        return new WalletService(walletOutputPort, paystackPaymentOutputPort, walletRepository, userWalletMediator,payStackAdapter);
+    public WalletService walletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserWalletMediator userWalletMediator,PayStackAdapter payStackAdapter,UserRepository userRepository) {
+        return new WalletService(walletOutputPort, paystackPaymentOutputPort, walletRepository, userWalletMediator,userRepository,payStackAdapter);
     }
 
     @Bean

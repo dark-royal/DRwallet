@@ -35,16 +35,14 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
 
     private final PaystackPaymentOutputPort paystackPaymentOutputPort;
     private final WalletRepository walletRepository;
-    private final UserWalletMediator userWalletMediator;
     private final UserRepository userRepository;
     private final PayStackAdapter payStackAdapter;
 
 
-    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserWalletMediator userWalletMediator, UserRepository userRepository, PayStackAdapter payStackAdapter) {
+    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserRepository userRepository, PayStackAdapter payStackAdapter) {
         this.walletOutputPort = walletOutputPort;
         this.paystackPaymentOutputPort = paystackPaymentOutputPort;
         this.walletRepository = walletRepository;
-        this.userWalletMediator = userWalletMediator;
         this.userRepository = userRepository;
         this.payStackAdapter = payStackAdapter;
     }
@@ -54,6 +52,7 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
     public Wallet createWallet(Wallet wallet) throws WalletAlreadyExistAlreadyException {
         verifyWalletExistence(wallet.getId());
         wallet = walletOutputPort.saveWallet(wallet);
+
         return wallet;
     }
 

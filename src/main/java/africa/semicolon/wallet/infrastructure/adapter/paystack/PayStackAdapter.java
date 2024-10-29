@@ -47,7 +47,6 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
     }
 
 
-
     @Override
     public InitializePaymentResponse initializePayment(InitializePaymentDto initializePaymentDto) {
 
@@ -82,6 +81,9 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
             throw new RuntimeException("Error initializing payment: " + e.getMessage(), e);
         }
     }
+
+
+
 
     @Override
     public PaymentVerificationResponse verifyPayment(String reference, Long id, String plan) throws Exception {

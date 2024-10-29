@@ -2,7 +2,7 @@ spring:
   application:
     name: Wallet
 server:
-  port: 2007
+  port: 9031
   servlet:
     context-path: /auth
 app:

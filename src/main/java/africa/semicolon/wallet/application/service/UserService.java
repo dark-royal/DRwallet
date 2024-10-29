@@ -3,52 +3,53 @@ package africa.semicolon.wallet.application.service;
 
 import africa.semicolon.wallet.application.port.input.userUseCases.*;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
+import africa.semicolon.wallet.application.port.output.WalletOutputPort;
 import africa.semicolon.wallet.domain.exceptions.IncorrectPaaswordException;
 import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.models.User;
+import africa.semicolon.wallet.domain.models.Wallet;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.james.mime4j.dom.datetime.DateTime;
 
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
-
+import java.util.logging.Logger;
+@Slf4j
 public class UserService implements RegisterUserUseCase, EditProfileByNameUseCase, EditProfileByEmailUseCase, EditProfileByPassword, EditProfileByPhoneNumber,FindUserByEmailUsesCase {
 
     private final UserOutputPort userOutputPort;
-    private final UserWalletMediator userWalletMediator;
+    private final WalletService walletService;
+    private final WalletOutputPort walletOutputPort;
 
 
-
-
-    public UserService(UserOutputPort userOutputPort, UserWalletMediator userWalletMediator) {
+    public UserService(UserOutputPort userOutputPort, WalletService walletService, WalletOutputPort walletOutputPort) {
         this.userOutputPort = userOutputPort;
-        this.userWalletMediator = userWalletMediator;
-
-
+        this.walletService = walletService;
+        this.walletOutputPort = walletOutputPort;
     }
 
 
-
-
-    private void verifyUserExistence(String email) throws UserAlreadyExistsException, UserNotFoundException {
-        User existingUser = findUserByEmail(email);
-        if(existingUser != null){
-            throw new UserAlreadyExistsException(String.format("%s already exist",email));
+    private void verifyUserExistence(String email) throws WalletAlreadyExistAlreadyException {
+        if (userOutputPort.getUserByEmail(email).isPresent()) {
+            throw new UserAlreadyExistsException("user exists already");
         }
     }
-
-
 
 
     @Override
     public User editProfileByName(User user) throws UserNotFoundException {
         Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
-        if(foundUser.isPresent()){
+        if (foundUser.isPresent()) {
             foundUser.get().setName(user.getName());
             userOutputPort.saveUser(foundUser.get());
             return foundUser.get();
-        }
-        else{
+        } else {
             throw new UserNotFoundException("User not found");
         }
     }
@@ -56,12 +57,11 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
     @Override
     public User editProfileByEmail(User user) throws UserNotFoundException {
         Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
-        if(foundUser.isPresent()){
+        if (foundUser.isPresent()) {
             foundUser.get().setEmail(user.getEmail());
             userOutputPort.saveUser(foundUser.get());
             return foundUser.get();
-        }
-        else{
+        } else {
             throw new UserNotFoundException("User not found");
         }
     }
@@ -69,19 +69,17 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
     @Override
     public User editProfileByPassword(User user) throws IncorrectPaaswordException, UserNotFoundException {
         Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
-        if(foundUser.isPresent()){
-            if(user.getPassword().equals(foundUser.get().getPassword())){
+        if (foundUser.isPresent()) {
+            if (user.getPassword().equals(foundUser.get().getPassword())) {
                 foundUser.get().setPassword(user.getPassword());
                 userOutputPort.saveUser(foundUser.get());
                 return foundUser.get();
-            }
-            else{
+            } else {
                 throw new IncorrectPaaswordException("Incorrect Username or password");
             }
 
 
-            }
-        else {
+        } else {
             throw new UserNotFoundException("User not found");
         }
     }
@@ -89,22 +87,34 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
     @Override
     public User editProfileByPhoneNumber(User user) throws UserNotFoundException {
         Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
-        if(foundUser.isPresent()){
+        if (foundUser.isPresent()) {
             foundUser.get().setPhoneNumber(user.getPhoneNumber());
             userOutputPort.saveUser(foundUser.get());
             return foundUser.get();
-        }
-        else{
+        } else {
             throw new UserNotFoundException("User not found");
         }
     }
 
+    @Override
+    public User createUser(User user) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
+        verifyUserExistence(user.getEmail());
 
+        Wallet newWallet = new Wallet();
+        newWallet.setId(user.getId());
+        newWallet.setBalance(BigDecimal.valueOf(0.0));
 
-        @Override
-        public User createUser (User user) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
-            return userWalletMediator.createUserWithWallet(user);
-        }
+        log.info("Creating new wallet: {}", newWallet);
+
+        Wallet wallet = walletOutputPort.saveWallet(newWallet);
+        log.info("Wallet created: {}", wallet);
+
+        user.setWallet(wallet);
+        user.setCreatedOn(LocalDateTime.now());
+
+        return userOutputPort.saveUser(user);
+    }
+
 
 
     @Override

@@ -1,40 +1,49 @@
 package africa.semicolon.wallet.userService;
 
 import africa.semicolon.wallet.UserServiceParameterResolver;
+import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.service.UserService;
+import africa.semicolon.wallet.application.service.WalletService;
 import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.models.User;
+import africa.semicolon.wallet.domain.models.Wallet;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest
-@ExtendWith(UserServiceParameterResolver.class)
-public class UserServiceTest {
-    private final UserService userService;
 
-    public UserServiceTest(UserService userService) {
-        this.userService = userService;
-    }
+@ExtendWith(UserServiceParameterResolver.class)
+@RequiredArgsConstructor
+public class UserServiceTest {
+    @Autowired
+    private  UserService userService;
+
 
     @Test
     public void testThatUserCanBeCreated() throws WalletAlreadyExistAlreadyException, UserAlreadyExistsException, UserNotFoundException {
         User user = User
                 .builder()
-                .email("praise@gmail.com")
+                .email("praise2007@gmail.com")
                 .name("Praise")
                 .password("password")
-                .phoneNumber("09028979349")
+                .phoneNumber("09179832145")
                 .build();
         user  = userService.createUser(user);
+        log.info("user: {}", user);
         assertThat(user.getId()).isNotNull();
-        assertThat(user.getEmail()).isEqualTo("praise@gmail.com");
+        assertThat(user.getEmail()).isEqualTo("praise2007@gmail.com");
         assertNotNull(user.getWallet());
 
 
@@ -71,7 +80,7 @@ public class UserServiceTest {
         User user = new User();
         user.setEmail("praise@gmail.com");
         user.setPhoneNumber("09187239875");
-        user = userService.editProfileByName(user);
+        user = userService.editProfileByPhoneNumber(user);
         assertEquals("09187239875", user.getPhoneNumber());
 
 

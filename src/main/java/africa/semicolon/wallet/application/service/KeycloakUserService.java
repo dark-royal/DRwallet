@@ -31,7 +31,7 @@ public class KeycloakUserService implements RegisterKeycloakUserUseCase {
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setEnabled(true);
         userRepresentation.setFirstName(newUserRecord.firstName());
-        userRepresentation.setLastName(newUserRecord.lastName());
+        userRepresentation.setLastName(newUserRecord.firstName());
         userRepresentation.setEmail(newUserRecord.email());
         userRepresentation.setEmailVerified(false);
         userRepresentation.setUsername(newUserRecord.username());

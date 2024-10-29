@@ -3,7 +3,6 @@ package africa.semicolon.wallet;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
 import africa.semicolon.wallet.application.service.UserService;
-import africa.semicolon.wallet.application.service.UserWalletMediator;
 import africa.semicolon.wallet.application.service.WalletService;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -12,7 +11,9 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 public class UserServiceParameterResolver implements ParameterResolver {
     private  UserOutputPort userOutputPort;
-    private  UserWalletMediator userWalletMediator;
+    private WalletService walletService;
+    private WalletOutputPort walletOutputPort;
+
 
 
 
@@ -24,6 +25,6 @@ public class UserServiceParameterResolver implements ParameterResolver {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return new UserService(userOutputPort,userWalletMediator);
+        return new UserService(userOutputPort, walletService,walletOutputPort);
     }
 }

@@ -3,7 +3,9 @@ package africa.semicolon.wallet.infrastructure.adapter.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Builder
@@ -24,6 +26,12 @@ public class UserEntity {
     private WalletEntity wallet;
     private String password;
     private String phoneNumber;
-    @Column(name = "created_on", updatable = false, nullable = false)
-    private Date createdOn;
+    @CreatedDate
+//    @Column(name = "created_on", updatable = false, nullable = false)
+    private LocalDateTime createdOn;
+
+    @PrePersist
+    protected void onCreate() {
+        createdOn = LocalDateTime.now();
+    }
 }

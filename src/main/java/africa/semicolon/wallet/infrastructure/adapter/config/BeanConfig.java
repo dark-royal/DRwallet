@@ -3,9 +3,7 @@ package africa.semicolon.wallet.infrastructure.adapter.config;
 import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
-import africa.semicolon.wallet.application.service.TransactionService;
 import africa.semicolon.wallet.application.service.UserService;
-import africa.semicolon.wallet.application.service.UserWalletMediator;
 import africa.semicolon.wallet.application.service.WalletService;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.PayStackAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.repository.PaystackPaymentRepository;
@@ -29,19 +27,16 @@ public class BeanConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
     @Bean
-    public UserWalletMediator userWalletMediator() {
-        return new UserWalletMediator();
+    public UserService userService(UserOutputPort userOutputPort, WalletService walletService,WalletOutputPort walletOutputPort ) {
+        return new UserService(userOutputPort,walletService,walletOutputPort);
     }
 
     @Bean
-    public UserService userService(UserOutputPort userOutputPort, UserWalletMediator userWalletMediator) {
-        return new UserService(userOutputPort, userWalletMediator);
-    }
-
-    @Bean
-    public WalletService walletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserWalletMediator userWalletMediator,PayStackAdapter payStackAdapter,UserRepository userRepository) {
-        return new WalletService(walletOutputPort, paystackPaymentOutputPort, walletRepository, userWalletMediator,userRepository,payStackAdapter);
+    public WalletService walletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository ,PayStackAdapter payStackAdapter,UserRepository userRepository) {
+        return new WalletService(walletOutputPort, paystackPaymentOutputPort, walletRepository,userRepository,payStackAdapter);
     }
 
     @Bean

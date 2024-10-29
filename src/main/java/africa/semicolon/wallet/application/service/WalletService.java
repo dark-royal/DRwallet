@@ -79,7 +79,7 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
         InitializePaymentDto initializePaymentDto = InitializePaymentDto.builder()
                 .amount(amount)
                 .email(user.getEmail())
-                .currency("USD")
+                .currency("NGN")
                 .build();
 
                InitializePaymentResponse response = paystackPaymentOutputPort.initializePayment(initializePaymentDto);

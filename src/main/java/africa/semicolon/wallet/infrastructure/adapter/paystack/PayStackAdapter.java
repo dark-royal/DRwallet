@@ -11,15 +11,20 @@ import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserE
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,52 +41,39 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
     private final UserRepository userRepository;
     private final PaystackPaymentRepository paymentRepository;
+    private final RestTemplate restTemplate;
 
-
-    @Value("${applyforme.paystack.secret.key}")
+    @Value("${paystack.secret.key}")
     private String paystackSecretKey;
 
-    public PayStackAdapter(UserRepository userRepository, PaystackPaymentRepository paymentRepository) {
+    public PayStackAdapter(UserRepository userRepository, PaystackPaymentRepository paymentRepository, RestTemplate restTemplate) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
+        this.restTemplate = restTemplate;
     }
+
+
 
 
     @Override
+    @Transactional
     public InitializePaymentResponse initializePayment(InitializePaymentDto initializePaymentDto) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + paystackSecretKey);
+        Gson gson = new Gson();
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(initializePaymentDto), headers);
 
-        try {
-            Gson gson = new Gson();
-            StringEntity postingString = new StringEntity(gson.toJson(initializePaymentDto));
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(PAYSTACK_INITIALIZE_PAY);
-            post.setEntity(postingString);
-            post.addHeader("Content-type", "application/json");
-            post.addHeader("Authorization", "Bearer " + paystackSecretKey);
+        ResponseEntity<InitializePaymentResponse> responseEntity = restTemplate.postForEntity(PAYSTACK_INITIALIZE_PAY, requestEntity, InitializePaymentResponse.class);
 
-            HttpResponse response = client.execute(post);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        } else {
 
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                try (BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = rd.readLine()) != null) {
-                        result.append(line);
-                    }
-
-                    ObjectMapper mapper = new ObjectMapper();
-                    return mapper.readValue(result.toString(), InitializePaymentResponse.class);
-                }
-            } else {
-                // Handle error responses
-                throw new RuntimeException("Paystack API returned an error: " + response.getStatusLine().getStatusCode());
-            }
-        } catch (IOException e) {
-            // Handle general exceptions
-            throw new RuntimeException("Error initializing payment: " + e.getMessage(), e);
+            String errorMessage = "Paystack API returned an error: " + responseEntity.getStatusCode() + " - " + responseEntity.getBody();
+            throw new RuntimeException(errorMessage);
         }
     }
-
 
 
 

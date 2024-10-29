@@ -15,10 +15,12 @@ import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.Wallet
 import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.WalletPersistenceMapperImpl;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.WalletRepository;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class BeanConfig {
@@ -28,6 +30,11 @@ public class BeanConfig {
         return new BCryptPasswordEncoder();
     }
 
+
+        @Bean
+        public RestTemplate restTemplate(RestTemplateBuilder builder) {
+            return builder.build();
+        }
 
     @Bean
     public UserService userService(UserOutputPort userOutputPort, WalletService walletService,WalletOutputPort walletOutputPort ) {
@@ -45,8 +52,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public PayStackAdapter payStackAdapter(UserRepository userRepository, PaystackPaymentRepository paymentRepository){
-        return new PayStackAdapter(userRepository,paymentRepository);
+    public PayStackAdapter payStackAdapter(UserRepository userRepository, PaystackPaymentRepository paymentRepository,RestTemplate restTemplate){
+        return new PayStackAdapter(userRepository,paymentRepository, restTemplate);
     }
 
     @Bean
@@ -56,8 +63,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public PaystackPaymentOutputPort paystackPaymentOutputPort(UserRepository userRepository, PaystackPaymentRepository paymentRepository) {
-        return new PayStackAdapter(userRepository, paymentRepository);
+    public PaystackPaymentOutputPort paystackPaymentOutputPort(UserRepository userRepository, PaystackPaymentRepository paymentRepository,RestTemplate restTemplate) {
+        return new PayStackAdapter(userRepository, paymentRepository,restTemplate);
     }
 
     @Bean

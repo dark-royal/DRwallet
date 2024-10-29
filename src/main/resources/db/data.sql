@@ -2,9 +2,9 @@
 
 INSERT INTO wallet_entity(id,balance)
 VALUES
-    (301,  600.00),
-    (201,  0.00),
-    (401,  6000.00);
+    (301,  600.0),
+    (201,  0.0),
+    (401,  6000.0);
 
 -- Insert data into the User_Entity table
 INSERT INTO User_Entity(id, name, email, wallet_id_id, password, phone_number, created_on)

@@ -55,12 +55,15 @@ public class WalletServiceTest {
         WalletEntity wallet = new WalletEntity();
         UserEntity user = new UserEntity();
         user.setId(501L);
+        user.setEmail("praise@gmail.com");
         wallet.setId(301L);
         wallet.setBalance(BigDecimal.ZERO);
-        walletService.depositToWallet(wallet, BigDecimal.valueOf(1000),user.getId());
+        walletService.depositToWallet(wallet, BigDecimal.valueOf(1000.0),user.getId());
         WalletEntity updatedWallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new Exception("Wallet not found after deposit"));
 
-        // Verify the deposit amount
-        assertEquals(BigDecimal.valueOf(1000), updatedWallet.getBalance());
+
+        assertEquals(BigDecimal.valueOf(1600.00).stripTrailingZeros(), updatedWallet.getBalance().stripTrailingZeros());
     }
+
+
 }

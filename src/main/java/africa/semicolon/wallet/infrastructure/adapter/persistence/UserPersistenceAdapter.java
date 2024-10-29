@@ -1,6 +1,7 @@
 package africa.semicolon.wallet.infrastructure.adapter.persistence;
 
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
+import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.UserPersistenceMapper;
@@ -9,8 +10,8 @@ import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.U
 import java.util.Optional;
 
 public class UserPersistenceAdapter implements UserOutputPort {
-        private final UserRepository userRepository;
-        private final UserPersistenceMapper userPersistenceMapper;
+    private final UserRepository userRepository;
+    private final UserPersistenceMapper userPersistenceMapper;
 
     public UserPersistenceAdapter(UserRepository userRepository, UserPersistenceMapper userPersistenceMapper) {
         this.userRepository = userRepository;
@@ -26,8 +27,19 @@ public class UserPersistenceAdapter implements UserOutputPort {
     }
 
     @Override
-    public Optional<User> getUserByEmail(  String email) {
-         Optional<UserEntity> userEntity = userRepository.findByEmail(email);
+    public Optional<User> getUserByEmail(String email) {
+        Optional<UserEntity> userEntity = userRepository.findByEmail(email);
         return userEntity.map(userPersistenceMapper::toUser);
+    }
+
+    @Override
+    public UserEntity getUserById(Long id) throws UserNotFoundException {
+        Optional<UserEntity> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new UserNotFoundException("user not found");
+        }
+
     }
 }

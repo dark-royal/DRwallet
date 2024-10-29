@@ -5,6 +5,6 @@ import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.Walle
 import java.math.BigDecimal;
 
 public interface WithdrawUseCase {
-    void withdrawFromWallet(WalletEntity wallet, BigDecimal amount, String accountNumber, String bankCode) throws Exception;
+    void withdrawFromWallet(WalletEntity wallet, BigDecimal amount, String accountNumber, String bankCode, Long userId) throws Exception;
 
 }

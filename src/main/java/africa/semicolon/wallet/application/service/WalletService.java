@@ -5,6 +5,7 @@ import africa.semicolon.wallet.application.port.input.walletUseCases.DepositToWa
 import africa.semicolon.wallet.application.port.input.walletUseCases.FindWalletByIdUsesCase;
 import africa.semicolon.wallet.application.port.input.walletUseCases.WithdrawUseCase;
 import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
+import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
@@ -29,22 +30,26 @@ import java.util.Optional;
 import static africa.semicolon.wallet.infrastructure.adapter.paystack.PayStackAdapter.createRecipient;
 
 @Slf4j
-public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCase, DepositToWalletUseCase {
+public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCase, DepositToWalletUseCase,WithdrawUseCase {
 
     private final WalletOutputPort walletOutputPort;
 
     private final PaystackPaymentOutputPort paystackPaymentOutputPort;
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+    private final UserOutputPort userOutputPort;
     private final PayStackAdapter payStackAdapter;
 
 
-    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserRepository userRepository, PayStackAdapter payStackAdapter) {
+
+    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserRepository userRepository, UserOutputPort userOutputPort, PayStackAdapter payStackAdapter) {
         this.walletOutputPort = walletOutputPort;
         this.paystackPaymentOutputPort = paystackPaymentOutputPort;
         this.walletRepository = walletRepository;
         this.userRepository = userRepository;
+        this.userOutputPort = userOutputPort;
         this.payStackAdapter = payStackAdapter;
+
     }
 
 
@@ -73,7 +78,7 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
     }
 
     @Override
-    public void depositToWallet(WalletEntity wallet, BigDecimal amount,Long userId) throws WalletNotFoundException {
+    public void depositToWallet(WalletEntity wallet, BigDecimal amount, Long userId) throws WalletNotFoundException {
         wallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         InitializePaymentDto initializePaymentDto = InitializePaymentDto.builder()
@@ -82,30 +87,39 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
                 .currency("NGN")
                 .build();
 
-               InitializePaymentResponse response = paystackPaymentOutputPort.initializePayment(initializePaymentDto);
+        InitializePaymentResponse response = paystackPaymentOutputPort.initializePayment(initializePaymentDto);
         log.info("This is the message{}", response);
-               response.setMessage("Deposit to wallet successful");
+        response.setMessage("Deposit to wallet successful");
 
-               wallet.setBalance(wallet.getBalance().add(amount));
-               walletRepository.save(wallet);
-            }
+        wallet.setBalance(wallet.getBalance().add(amount));
+        walletRepository.save(wallet);
+    }
 
 
-//    @Override
-//    public void withdrawFromWallet(WalletEntity wallet, BigDecimal amount, String accountNumber, String bankCode) throws Exception {
-//        wallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
-//        TransferRecipientResponse recipientResponse = createRecipient(wallet.getUser().getName(), accountNumber, bankCode);
-//        String recipientCode = recipientResponse.data.getRecipientCode();
-//
-//        TransferResponse transferResponse = payStackAdapter.initiateWithdrawal(amount, recipientCode, "Withdrawal from wallet");
-//        if (transferResponse.getStatus().equals("success")) {
-//            wallet.setBalance(wallet.getBalance().subtract(amount));
-//            walletRepository.save(wallet);
-//            System.out.println("Withdrawal successful: " + transferResponse.getData());
-//        } else {
-//            throw new Exception("Withdrawal failed: " + transferResponse.getMessage());
-//        }
-//    }
+    @Override
+    public void withdrawFromWallet(WalletEntity wallet, BigDecimal amount, String accountNumber, String bankCode, Long userId) throws Exception {
+
+        wallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
+
+        UserEntity user = userOutputPort.getUserById(userId);
+        String userName = user.getName();
+
+        TransferRecipientResponse recipientResponse = createRecipient(userName, accountNumber, bankCode);
+        String recipientCode = recipientResponse.data.getRecipientCode();
+
+
+        TransferResponse transferResponse = payStackAdapter.initiateWithdrawal(amount, recipientCode, "Withdrawal from wallet");
+        if (transferResponse.getStatus().equals("success")) {
+
+            wallet.setBalance(wallet.getBalance().subtract(amount));
+            walletRepository.save(wallet);
+            System.out.println("Withdrawal successful: " + transferResponse.getData());
+        } else {
+            throw new Exception("Withdrawal failed: " + transferResponse.getMessage());
+        }
+    }
+
+
 }
 
 

@@ -10,18 +10,16 @@ import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.domain.models.Wallet;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.james.mime4j.dom.datetime.DateTime;
 
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
-import java.util.logging.Logger;
+
 @Slf4j
-public class UserService implements RegisterUserUseCase, EditProfileByNameUseCase, EditProfileByEmailUseCase, EditProfileByPassword, EditProfileByPhoneNumber,FindUserByEmailUsesCase {
+public class UserService implements RegisterUserUseCase, EditProfileByNameUseCase, EditProfileByEmailUseCase, EditProfileByPassword, EditProfileByPhoneNumber,FindUserByEmailUsesCase,GetUserUseCase {
 
     private final UserOutputPort userOutputPort;
     private final WalletService walletService;
@@ -126,5 +124,18 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
        else{
            throw new UserNotFoundException("user not found");
        }
+    }
+
+
+    @Override
+    public UserEntity getUserById(Long id) throws UserNotFoundException {
+        UserEntity user = userOutputPort.getUserById(id);
+        if(user != null){
+           return user;
+        }
+        else {
+            throw new UserNotFoundException("user not found");
+        }
+
     }
 }

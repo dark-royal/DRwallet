@@ -11,7 +11,10 @@ import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyExcept
 import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.domain.models.Wallet;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.mappers.UserPersistenceMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.math.BigDecimal;
@@ -24,12 +27,22 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
     private final UserOutputPort userOutputPort;
     private final WalletService walletService;
     private final WalletOutputPort walletOutputPort;
+    private final TransactionService transactionService;
+    private final KeycloakUserService keycloakUserService;
+    private final UserEntity userEntity;
+    private final UserPersistenceMapper userPersistenceMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public UserService(UserOutputPort userOutputPort, WalletService walletService, WalletOutputPort walletOutputPort) {
+    public UserService(UserOutputPort userOutputPort, WalletService walletService, WalletOutputPort walletOutputPort, TransactionService transactionService, KeycloakUserService keycloakUserService, UserEntity userEntity, UserPersistenceMapper userPersistenceMapper, PasswordEncoder passwordEncoder) {
         this.userOutputPort = userOutputPort;
         this.walletService = walletService;
         this.walletOutputPort = walletOutputPort;
+        this.transactionService = transactionService;
+        this.keycloakUserService = keycloakUserService;
+        this.userEntity = userEntity;
+        this.userPersistenceMapper = userPersistenceMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -44,7 +57,7 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
     public User editProfileByName(User user) throws UserNotFoundException {
         Optional<User> foundUser = userOutputPort.getUserByEmail(user.getEmail());
         if (foundUser.isPresent()) {
-            foundUser.get().setName(user.getName());
+            foundUser.get().setFirstName(user.getFirstName());
             userOutputPort.saveUser(foundUser.get());
             return foundUser.get();
         } else {
@@ -98,19 +111,15 @@ public class UserService implements RegisterUserUseCase, EditProfileByNameUseCas
     public User createUser(User user) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
         verifyUserExistence(user.getEmail());
 
-        Wallet newWallet = new Wallet();
-        newWallet.setId(user.getId());
-        newWallet.setBalance(BigDecimal.valueOf(0.0));
-
-        log.info("Creating new wallet: {}", newWallet);
-
-        Wallet wallet = walletOutputPort.saveWallet(newWallet);
-        log.info("Wallet created: {}", wallet);
-
+        Wallet wallet = new Wallet();
+        wallet.setBalance(BigDecimal.ZERO);
         user.setWallet(wallet);
-        user.setCreatedOn(LocalDateTime.now());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        keycloakUserService.createUser(user);
+        User savedUser = userOutputPort.saveUser(user); // Output port expects a `User` type
+        log.info("User created with wallet in the database");
 
-        return userOutputPort.saveUser(user);
+        return savedUser;
     }
 
 

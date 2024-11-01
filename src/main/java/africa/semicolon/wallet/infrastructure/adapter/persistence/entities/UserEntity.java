@@ -2,11 +2,9 @@ package africa.semicolon.wallet.infrastructure.adapter.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @Setter
@@ -18,10 +16,12 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String firstName;
+    private String lastName;
     @Column(unique = true)
     private String email;
-    @OneToOne(fetch = FetchType.EAGER)
+
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "wallet_id_id")
     private WalletEntity wallet;
     private String password;

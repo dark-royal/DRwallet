@@ -1,18 +1,17 @@
 package africa.semicolon.wallet.infrastructure.adapter.paystack.models;
 
+import africa.semicolon.wallet.domain.models.CharsetAdapter;
+import africa.semicolon.wallet.domain.models.ProxyTypeAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.TransferRecipientResponse;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-
-import static africa.semicolon.wallet.infrastructure.adapter.paystack.constants.ApiConstants.PAYSTACK_SECRET_KEY;
+import java.net.Proxy;
+import java.nio.charset.Charset;
 
 @Setter
 @Getter
@@ -25,31 +24,40 @@ public class TransferRecipient {
     private String description;
 
 
+
+        private final RestTemplate restTemplate;
+        private static final String PAYSTACK_SECRET_KEY = "YOUR_SECRET_KEY"; // Use your actual Paystack secret key
+        private static final String PAYSTACK_API_URL = "https://api.paystack.co/transferrecipient";
+
+    public TransferRecipient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+
     public TransferRecipientResponse create() throws Exception {
-        URL url = new URL("https://api.paystack.co/transferrecipient");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Authorization", "Bearer" +  PAYSTACK_SECRET_KEY);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + PAYSTACK_SECRET_KEY);
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Charset.class, new CharsetAdapter())
+                .create();
 
 
-        Gson gson = new Gson();
-        String jsonInputString = gson.toJson(this);
-
-        try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
-        }
+            String jsonInputString = gson.toJson(this);
 
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonInputString, headers);
+
+        String url = PAYSTACK_API_URL + "/transferrecipient";
+        ResponseEntity<TransferRecipientResponse> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, TransferRecipientResponse.class);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return responseEntity.getBody();
+            } else {
+                String errorMessage = "Paystack API returned an error: " + responseEntity.getStatusCode() + " - " + responseEntity.getBody();
+                throw new RuntimeException(errorMessage);
             }
-            return gson.fromJson(response.toString(), TransferRecipientResponse.class);
         }
     }
-}
+

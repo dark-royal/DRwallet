@@ -1,9 +1,6 @@
 package africa.semicolon.wallet.application.service;
 
-import africa.semicolon.wallet.application.port.input.walletUseCases.CreateWalletUseCase;
-import africa.semicolon.wallet.application.port.input.walletUseCases.DepositToWalletUseCase;
-import africa.semicolon.wallet.application.port.input.walletUseCases.FindWalletByIdUsesCase;
-import africa.semicolon.wallet.application.port.input.walletUseCases.WithdrawUseCase;
+import africa.semicolon.wallet.application.port.input.walletUseCases.*;
 import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
@@ -14,7 +11,6 @@ import africa.semicolon.wallet.domain.models.Wallet;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.PayStackAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.InitializePaymentDto;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.InitializePaymentResponse;
-import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.PaymentVerificationResponse;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.TransferRecipientResponse;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.TransferResponse;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
@@ -24,7 +20,6 @@ import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.W
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.Optional;
 
 import static africa.semicolon.wallet.infrastructure.adapter.paystack.PayStackAdapter.createRecipient;
@@ -78,8 +73,8 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
     }
 
     @Override
-    public void depositToWallet(WalletEntity wallet, BigDecimal amount, Long userId) throws WalletNotFoundException {
-        wallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
+    public void depositToWallet(Wallet wallet, BigDecimal amount, Long userId) throws WalletNotFoundException {
+        wallet = walletOutputPort.getWalletById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         InitializePaymentDto initializePaymentDto = InitializePaymentDto.builder()
                 .amount(amount)
@@ -92,7 +87,7 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
         response.setMessage("Deposit to wallet successful");
 
         wallet.setBalance(wallet.getBalance().add(amount));
-        walletRepository.save(wallet);
+        walletOutputPort.saveWallet(wallet);
     }
 
 
@@ -102,15 +97,13 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
         wallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
 
         UserEntity user = userOutputPort.getUserById(userId);
-        String userName = user.getName();
+        String userName = user.getFirstName();
 
         TransferRecipientResponse recipientResponse = createRecipient(userName, accountNumber, bankCode);
         String recipientCode = recipientResponse.data.getRecipientCode();
 
-
         TransferResponse transferResponse = payStackAdapter.initiateWithdrawal(amount, recipientCode, "Withdrawal from wallet");
         if (transferResponse.getStatus().equals("success")) {
-
             wallet.setBalance(wallet.getBalance().subtract(amount));
             walletRepository.save(wallet);
             System.out.println("Withdrawal successful: " + transferResponse.getData());
@@ -120,7 +113,10 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
     }
 
 
-}
+
+    }
+
+
 
 
 

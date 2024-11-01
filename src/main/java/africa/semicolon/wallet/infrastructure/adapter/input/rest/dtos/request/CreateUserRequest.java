@@ -1,5 +1,6 @@
 package africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request;
 
+import africa.semicolon.wallet.domain.models.Wallet;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
@@ -18,5 +19,6 @@ public class CreateUserRequest {
     private String email;
     @NotEmpty(message = "phoneNumber must not be empty")
     private String phoneNumber;
+    private Wallet wallet;
 
 }

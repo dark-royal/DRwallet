@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 public class Transaction {
     private Long id;
     private Long walletId;
-    private String transactionType;
+    private Long userId;
+    private TransactionType transactionType;
     private BigDecimal amount;
     private String description;
     private Status status;

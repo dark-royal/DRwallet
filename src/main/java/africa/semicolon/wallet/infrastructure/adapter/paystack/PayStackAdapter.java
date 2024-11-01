@@ -3,31 +3,26 @@ package africa.semicolon.wallet.infrastructure.adapter.paystack;
 import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.InitializePaymentDto;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.*;
+import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.BalanceResponse;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.models.PaymentPaystack;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.models.Transfer;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.models.TransferRecipient;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.repository.PaystackPaymentRepository;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -126,12 +121,13 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
         } catch (Exception ex) {
             throw new Exception("Paystack");
         }
+        assert payment != null;
         paymentRepository.save(payment);
         return paymentVerificationResponse;
     }
 
     public static TransferRecipientResponse createRecipient(String name, String accountNumber, String bankCode) throws Exception {
-        TransferRecipient recipient = new TransferRecipient();
+        TransferRecipient recipient = new TransferRecipient(new RestTemplate());
         recipient.setName(name);
         recipient.setAccountNumber(accountNumber);
         recipient.setBankCode(bankCode);
@@ -149,5 +145,31 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
         return transfer.create();
 
+    }
+
+
+
+    public BigDecimal getBalance () throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + PAYSTACK_SECRET_KEY);
+
+        String url = "https://api.paystack.co/balance";
+
+        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+
+        ResponseEntity<BalanceResponse> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, BalanceResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            BalanceResponse balanceResponse = responseEntity.getBody();
+            if (balanceResponse != null && balanceResponse.getData() != null) {
+                return balanceResponse.getData().getBalance();
+            } else {
+                throw new Exception("Failed to retrieve balance: Empty response");
+            }
+        } else {
+            String errorMessage = "Paystack API returned an error: " + responseEntity.getStatusCode() + " - " + responseEntity.getBody();
+            throw new RuntimeException(errorMessage);
+        }
     }
 }

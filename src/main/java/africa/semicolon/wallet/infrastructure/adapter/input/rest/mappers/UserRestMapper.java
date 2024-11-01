@@ -9,7 +9,7 @@ import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.E
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.FindUserResponse;
 import org.mapstruct.Mapper;
 
-@Mapper
+
 public interface UserRestMapper {
     User toUser(CreateUserRequest createUserRequest);
 

@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+@RestController
 public class UserRestAdapter {
 
     private final RegisterUserUseCase registerUserUseCase;
@@ -26,24 +26,22 @@ public class UserRestAdapter {
     private final EditProfileByPhoneNumber editProfileByPhoneNumber;
     private final EditProfileByEmailUseCase editProfileByEmailUseCase;
     private final EditProfileByPassword editProfileByPassword ;
-    private final GetUserUseCase getUserUseCase;
     private final FindUserByEmailUsesCase findUserByEmailUsesCase;
     private final UserRestMapper userRestMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserRestAdapter(RegisterUserUseCase registerUserUseCase, EditProfileByNameUseCase editProfileByNameUseCase, EditProfileByPhoneNumber editProfileByPhoneNumber, EditProfileByEmailUseCase editProfileByEmailUseCase, EditProfileByPassword editProfileByPassword, GetUserUseCase getUserUseCase, FindUserByEmailUsesCase findUserByEmailUsesCase, UserRestMapper userRestMapper, PasswordEncoder passwordEncoder) {
+    public UserRestAdapter(RegisterUserUseCase registerUserUseCase, EditProfileByNameUseCase editProfileByNameUseCase, EditProfileByPhoneNumber editProfileByPhoneNumber, EditProfileByEmailUseCase editProfileByEmailUseCase, EditProfileByPassword editProfileByPassword, FindUserByEmailUsesCase findUserByEmailUsesCase, UserRestMapper userRestMapper, PasswordEncoder passwordEncoder) {
         this.registerUserUseCase = registerUserUseCase;
         this.editProfileByNameUseCase = editProfileByNameUseCase;
         this.editProfileByPhoneNumber = editProfileByPhoneNumber;
         this.editProfileByEmailUseCase = editProfileByEmailUseCase;
         this.editProfileByPassword = editProfileByPassword;
-        this.getUserUseCase = getUserUseCase;
         this.findUserByEmailUsesCase = findUserByEmailUsesCase;
         this.userRestMapper = userRestMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping(value = "/register")
     public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Validated final CreateUserRequest createUserRequest) throws UserAlreadyExistsException, WalletAlreadyExistAlreadyException, UserNotFoundException {
         User user = userRestMapper.toUser(createUserRequest);
         createUserRequest.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -55,7 +53,7 @@ public class UserRestAdapter {
     @PatchMapping("/editName")
     public ResponseEntity<EditProfileResponse> editProfileByName(@RequestBody @Validated final EditProfileRequest editProfileRequest) throws UserAlreadyExistsException, UserNotFoundException {
         User user = userRestMapper.toUser(editProfileRequest);
-        user.setName(editProfileRequest.getName());
+        user.setFirstName(editProfileRequest.getName());
         user = editProfileByNameUseCase.editProfileByName(user);
         return new ResponseEntity<>(userRestMapper.toEditProfileResponse(user), HttpStatus.OK);
     }

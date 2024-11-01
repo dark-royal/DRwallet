@@ -1,12 +1,12 @@
 package africa.semicolon.wallet.domain.models;
 
-import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.WalletEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @AllArgsConstructor
@@ -16,11 +16,13 @@ import java.util.Date;
 @ToString
 public class User {
     private Long id;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
     @CreatedDate
     private LocalDateTime createdOn;
     private String password;
+
     private Wallet wallet;
     private String phoneNumber;
 }

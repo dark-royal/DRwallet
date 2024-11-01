@@ -1,22 +1,20 @@
 package africa.semicolon.wallet.userService;
 
 import africa.semicolon.wallet.UserServiceParameterResolver;
-import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.service.UserService;
-import africa.semicolon.wallet.application.service.WalletService;
 import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.models.User;
-import africa.semicolon.wallet.domain.models.Wallet;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,8 +34,10 @@ public class UserServiceTest {
         User user = User
                 .builder()
                 .email("praise2007@gmail.com")
-                .name("Praise")
+                .firstName("Praise")
+                .lastName("oyewole")
                 .password("password")
+                .createdOn(LocalDateTime.now())
                 .phoneNumber("09179832145")
                 .build();
         user  = userService.createUser(user);
@@ -53,7 +53,7 @@ public class UserServiceTest {
         User user = User
                 .builder()
                 .email("praise@gmail.com")
-                .name("Praise")
+                .firstName("Praise")
                 .password("password")
                 .phoneNumber("09028979349")
                 .build();
@@ -67,9 +67,9 @@ public class UserServiceTest {
     public void testThatUserCanEditProfileByName() throws UserNotFoundException {
         User user = new User();
         user.setEmail("praise@gmail.com");
-        user.setName("Hannah");
+        user.setFirstName("Hannah");
         user = userService.editProfileByName(user);
-        assertEquals("Hannah", user.getName());
+        assertEquals("Hannah", user.getFirstName());
 
 
     }

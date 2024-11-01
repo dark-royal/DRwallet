@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Setter
 @Getter
+@ToString
 public class Wallet {
     private Long id;
     private BigDecimal balance;

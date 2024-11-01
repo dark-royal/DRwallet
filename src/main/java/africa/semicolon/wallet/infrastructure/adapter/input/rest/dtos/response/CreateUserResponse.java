@@ -1,6 +1,7 @@
 package africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response;
 
 import africa.semicolon.wallet.domain.models.User;
+import africa.semicolon.wallet.domain.models.Wallet;
 import lombok.*;
 
 @Builder
@@ -14,6 +15,7 @@ public class CreateUserResponse {
     private String name;
     private String email;
     private String phoneNumber;
+    private Wallet wallet;
 
 
 }

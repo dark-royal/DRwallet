@@ -1,17 +1,14 @@
 package africa.semicolon.wallet.application.port.output;
 
+import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.models.User;
-import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 
 import java.util.Optional;
 
 public interface UserOutputPort {
-
     User saveUser(User user);
-
     Optional<User> getUserByEmail(String email);
+    User getUserById(Long id) throws UserNotFoundException;
 
-    UserEntity getUserById(Long id);
-
-
+    boolean existsByEmail(String email);
 }

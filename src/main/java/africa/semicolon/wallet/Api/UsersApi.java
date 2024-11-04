@@ -1,8 +1,6 @@
 package africa.semicolon.wallet.Api;
 
-import africa.semicolon.wallet.application.service.KeycloakUserService;
-import africa.semicolon.wallet.application.service.UserService;
-import africa.semicolon.wallet.domain.models.NewUserRecord;
+import africa.semicolon.wallet.application.service.AuthService;
 import africa.semicolon.wallet.domain.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,25 +12,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UsersApi {
 
-    private final KeycloakUserService keycloakUserService;
+    private final AuthService authService;
 
     @PostMapping()
     public ResponseEntity<?> createUser(@RequestBody User user){
-        keycloakUserService.createUser(user);
+        authService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).build();
 
     }
-
-    @PutMapping("/{id}send-verification-email")
-    public ResponseEntity<?> sendVerificationEmail(@PathVariable String id){
-        keycloakUserService.sendVerificationEmail(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
-
-    }
+//
+//    @PutMapping("/{id}send-verification-email")
+//    public ResponseEntity<?> sendVerificationEmail(@PathVariable String id){
+//        authService.sendVerificationEmail(id);
+//        return ResponseEntity.status(HttpStatus.OK).build();
+//
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable String id){
-        keycloakUserService.deleteUser(id);
+        authService.deleteUser(id);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
     }

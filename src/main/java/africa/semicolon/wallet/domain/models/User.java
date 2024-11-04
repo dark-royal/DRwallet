@@ -22,6 +22,7 @@ public class User {
     @CreatedDate
     private LocalDateTime createdOn;
     private String password;
+    private String newPassword;
 
     private Wallet wallet;
     private String phoneNumber;

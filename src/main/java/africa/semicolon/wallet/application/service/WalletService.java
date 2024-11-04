@@ -13,6 +13,7 @@ import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.InitializePa
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.InitializePaymentResponse;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.TransferRecipientResponse;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.TransferResponse;
+import africa.semicolon.wallet.infrastructure.adapter.persistence.UserPersistenceAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.WalletEntity;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.UserRepository;
@@ -34,17 +35,18 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
     private final UserRepository userRepository;
     private final UserOutputPort userOutputPort;
     private final PayStackAdapter payStackAdapter;
+    private final UserPersistenceAdapter userPersistenceAdapter;
 
 
 
-    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserRepository userRepository, UserOutputPort userOutputPort, PayStackAdapter payStackAdapter) {
+    public WalletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, UserRepository userRepository, UserOutputPort userOutputPort, PayStackAdapter payStackAdapter, UserPersistenceAdapter userPersistenceAdapter) {
         this.walletOutputPort = walletOutputPort;
         this.paystackPaymentOutputPort = paystackPaymentOutputPort;
         this.walletRepository = walletRepository;
         this.userRepository = userRepository;
         this.userOutputPort = userOutputPort;
         this.payStackAdapter = payStackAdapter;
-
+        this.userPersistenceAdapter = userPersistenceAdapter;
     }
 
 
@@ -96,7 +98,7 @@ public class WalletService implements CreateWalletUseCase, FindWalletByIdUsesCas
 
         wallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
 
-        UserEntity user = userOutputPort.getUserById(userId);
+        UserEntity user = userPersistenceAdapter.getUserEntityById(userId);
         String userName = user.getFirstName();
 
         TransferRecipientResponse recipientResponse = createRecipient(userName, accountNumber, bankCode);

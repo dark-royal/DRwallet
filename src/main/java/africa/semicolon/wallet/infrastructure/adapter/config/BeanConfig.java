@@ -4,10 +4,8 @@ import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort
 import africa.semicolon.wallet.application.port.output.TransactionOutputPort;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
-import africa.semicolon.wallet.application.service.KeycloakUserService;
-import africa.semicolon.wallet.application.service.TransactionService;
-import africa.semicolon.wallet.application.service.UserService;
-import africa.semicolon.wallet.application.service.WalletService;
+import africa.semicolon.wallet.application.service.*;
+import africa.semicolon.wallet.infrastructure.adapter.input.rest.KeycloakAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.mappers.*;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.PayStackAdapter;
 import africa.semicolon.wallet.infrastructure.adapter.paystack.repository.PaystackPaymentRepository;
@@ -43,22 +41,19 @@ public class BeanConfig {
     }
 
     @Bean
-    public UserService userService(UserOutputPort userOutputPort, WalletService walletService, WalletOutputPort walletOutputPort, TransactionService transactionService, KeycloakUserService keycloakUserService, UserEntity userEntity, UserPersistenceMapper userPersistenceMapper) {
-        return new UserService(userOutputPort, walletService, walletOutputPort,transactionService,keycloakUserService,userEntity,userPersistenceMapper);
+    public UserService userService(UserOutputPort userOutputPort, AuthService authService, WalletService walletService, WalletOutputPort walletOutputPort, TransactionService transactionService, UserPersistenceMapper userPersistenceMapper, PasswordEncoder passwordEncoder) {
+        return new UserService(userOutputPort,authService, walletService, walletOutputPort, transactionService,userPersistenceMapper, passwordEncoder);
+    }
+
+
+
+    @Bean
+    public WalletService walletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository,UserRepository userRepository, UserOutputPort userOutputPort, PayStackAdapter payStackAdapter,UserPersistenceAdapter userPersistenceAdapter) {
+        return new WalletService(walletOutputPort, paystackPaymentOutputPort, walletRepository, userRepository, userOutputPort, payStackAdapter,userPersistenceAdapter);
     }
 
     @Bean
-    public KeycloakUserService keycloakUserService(Keycloak keycloak){
-        return new KeycloakUserService(keycloak);
-    }
-
-    @Bean
-    public WalletService walletService(WalletOutputPort walletOutputPort, PaystackPaymentOutputPort paystackPaymentOutputPort, WalletRepository walletRepository, PayStackAdapter payStackAdapter, UserRepository userRepository,UserOutputPort userOutputPort) {
-        return new WalletService(walletOutputPort, paystackPaymentOutputPort, walletRepository, userRepository, userOutputPort,payStackAdapter);
-    }
-
-    @Bean
-    public UserEntity user(){
+    public UserEntity user() {
         return new UserEntity();
     }
 
@@ -100,38 +95,48 @@ public class BeanConfig {
     }
 
     @Bean
-    public TransactionPersistenceAdapter transactionPersistenceAdapter(TransactionRepository transactionRepository, TransactionPersistenceMapper transactionPersistenceMapper){
+    public TransactionPersistenceAdapter transactionPersistenceAdapter(TransactionRepository transactionRepository, TransactionPersistenceMapper transactionPersistenceMapper) {
         return new TransactionPersistenceAdapter(transactionRepository, transactionPersistenceMapper);
     }
 
     @Bean
-    public TransactionPersistenceMapper transactionPersistenceMapper(){
+    public TransactionPersistenceMapper transactionPersistenceMapper() {
         return new TransactionPersistenceMapperImpl();
     }
 
     @Bean
-    public TransactionOutputPort transactionOutputPort(TransactionRepository transactionRepository, TransactionPersistenceMapper transactionPersistenceMapper){
+    public TransactionOutputPort transactionOutputPort(TransactionRepository transactionRepository, TransactionPersistenceMapper transactionPersistenceMapper) {
         return new TransactionPersistenceAdapter(transactionRepository, transactionPersistenceMapper);
     }
 
     @Bean
-    public TransactionService transactionService(TransactionOutputPort transactionOutputPort,UserRepository userRepository){
-        return new TransactionService(transactionOutputPort,userRepository);
+    public TransactionService transactionService(TransactionOutputPort transactionOutputPort, UserRepository userRepository) {
+        return new TransactionService(transactionOutputPort, userRepository);
     }
 
     @Bean
-    public UserRestMapper userRestMapper(){
+    public UserRestMapper userRestMapper() {
         return new UserRestMapperImpl();
     }
 
     @Bean
-    public TransactionRestMapper transactionRestMapper(){
+    public TransactionRestMapper transactionRestMapper() {
         return new TransactionRestMapperImpl();
     }
 
     @Bean
-    public WalletRestMapper walletRestMapper(){
+    public WalletRestMapper walletRestMapper() {
         return new WalletRestMapperImpl();
     }
 
+    @Bean
+    public AuthService authService(KeycloakAdapter keycloakAdapter) {
+        return new AuthService(keycloakAdapter);
+    }
+
+    @Bean
+    public KeycloakAdapter keycloakAdapter(UserOutputPort userOutputPort,RestTemplate restTemplate,Keycloak keycloak){
+        return new KeycloakAdapter(userOutputPort,restTemplate,keycloak);
+    }
 }
+      

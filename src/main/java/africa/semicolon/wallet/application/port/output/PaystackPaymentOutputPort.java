@@ -7,7 +7,7 @@ import africa.semicolon.wallet.infrastructure.adapter.paystack.dtos.response.Pay
 
 public interface PaystackPaymentOutputPort {
     InitializePaymentResponse initializePayment(InitializePaymentDto initializePaymentDto);
-    PaymentVerificationResponse verifyPayment(String reference, Long id, String plan) throws Exception;
+    PaymentVerificationResponse verifyPayment(String reference, Long id) throws Exception;
 
 
 }

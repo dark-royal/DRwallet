@@ -18,29 +18,34 @@ public class UserPersistenceAdapter implements UserOutputPort {
         this.userPersistenceMapper = userPersistenceMapper;
     }
 
-
     @Override
     public User saveUser(User user) {
         UserEntity userEntity = userPersistenceMapper.toUserEntity(user);
-
         UserEntity savedEntity = userRepository.save(userEntity);
         return userPersistenceMapper.toUser(savedEntity);
     }
 
     @Override
     public Optional<User> getUserByEmail(String email) {
-        Optional<UserEntity> userEntity = userRepository.findByEmail(email);
-        return userEntity.map(userPersistenceMapper::toUser);
+         UserEntity userEntity = userRepository.findByEmail(email).get();
+         return Optional.of(userPersistenceMapper.toUser(userEntity));
     }
 
     @Override
-    public UserEntity getUserById(Long id) throws UserNotFoundException {
-        Optional<UserEntity> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new UserNotFoundException("user not found");
-        }
-
+    public User getUserById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id)
+                .map(userPersistenceMapper::toUser)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public UserEntity getUserEntityById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
 }

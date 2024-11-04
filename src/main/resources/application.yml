@@ -12,3 +12,4 @@ app:
       clientSecret: IaYscf7zVFVoPUB6iCvxl6ilMDLaUEW3
     realm: spring
     serverUrl: http://localhost:9082
+    tokenUrl: http://localhost:9082/realms/spring/protocol/openid-connect/token

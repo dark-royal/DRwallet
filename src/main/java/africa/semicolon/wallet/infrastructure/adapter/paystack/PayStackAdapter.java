@@ -73,7 +73,7 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
 
     @Override
-    public PaymentVerificationResponse verifyPayment(String reference, Long id, String plan) throws Exception {
+    public PaymentVerificationResponse verifyPayment(String reference, Long id) throws Exception {
         PaymentVerificationResponse paymentVerificationResponse = null;
         PaymentPaystack payment = null;
 
@@ -149,27 +149,52 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
 
 
-    public BigDecimal getBalance () throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + PAYSTACK_SECRET_KEY);
 
-        String url = "https://api.paystack.co/balance";
-
-        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-
-        ResponseEntity<BalanceResponse> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, BalanceResponse.class);
-
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            BalanceResponse balanceResponse = responseEntity.getBody();
-            if (balanceResponse != null && balanceResponse.getData() != null) {
-                return balanceResponse.getData().getBalance();
-            } else {
-                throw new Exception("Failed to retrieve balance: Empty response");
-            }
-        } else {
-            String errorMessage = "Paystack API returned an error: " + responseEntity.getStatusCode() + " - " + responseEntity.getBody();
-            throw new RuntimeException(errorMessage);
-        }
-    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// public BigDecimal getBalance () throws Exception {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        headers.set("Authorization", "Bearer " + PAYSTACK_SECRET_KEY);
+//
+//        String url = "https://api.paystack.co/balance";
+//
+//        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+//
+//        ResponseEntity<BalanceResponse> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, BalanceResponse.class);
+//
+//        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+//            BalanceResponse balanceResponse = responseEntity.getBody();
+//            if (balanceResponse != null && balanceResponse.getData() != null) {
+//                return balanceResponse.getData().getBalance();
+//            } else {
+//                throw new Exception("Failed to retrieve balance: Empty response");
+//            }
+//        } else {
+//            String errorMessage = "Paystack API returned an error: " + responseEntity.getStatusCode() + " - " + responseEntity.getBody();
+//            throw new RuntimeException(errorMessage);
+//        }
+//    }

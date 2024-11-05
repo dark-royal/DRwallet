@@ -11,4 +11,7 @@ public interface UserOutputPort {
     User getUserById(Long id) throws UserNotFoundException;
 
     boolean existsByEmail(String email);
+
+    boolean existById(Long userId);
+
 }

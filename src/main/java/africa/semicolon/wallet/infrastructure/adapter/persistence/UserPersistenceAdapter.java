@@ -43,6 +43,11 @@ public class UserPersistenceAdapter implements UserOutputPort {
         return userRepository.existsByEmail(email);
     }
 
+    @Override
+    public boolean existById(Long userId) {
+        return userRepository.existsById(userId);
+    }
+
     public UserEntity getUserEntityById(Long id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));

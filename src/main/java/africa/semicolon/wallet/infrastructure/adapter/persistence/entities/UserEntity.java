@@ -1,5 +1,6 @@
 package africa.semicolon.wallet.infrastructure.adapter.persistence.entities;
 
+import africa.semicolon.wallet.domain.models.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,6 +19,7 @@ public class UserEntity {
     private Long id;
     private String firstName;
     private String lastName;
+    private Role role;
     @Column(unique = true)
     private String email;
 

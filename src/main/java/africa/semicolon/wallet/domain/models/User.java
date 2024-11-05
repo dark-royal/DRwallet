@@ -1,12 +1,10 @@
 package africa.semicolon.wallet.domain.models;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -19,8 +17,11 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
+    private String keycloakId;
+    private Role role;
     @CreatedDate
     private LocalDateTime createdOn;
+    private List<Transaction> transactions;
     private String password;
     private String newPassword;
 

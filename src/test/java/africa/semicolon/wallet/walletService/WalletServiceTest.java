@@ -2,15 +2,12 @@ package africa.semicolon.wallet.walletService;
 
 import africa.semicolon.wallet.UserServiceParameterResolver;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
-import africa.semicolon.wallet.application.service.WalletService;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
 import africa.semicolon.wallet.domain.exceptions.WalletNotFoundException;
 import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.domain.models.Wallet;
-import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.UserEntity;
-import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.WalletEntity;
-import africa.semicolon.wallet.infrastructure.adapter.persistence.repositories.WalletRepository;
+import africa.semicolon.wallet.domain.service.WalletService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,13 +25,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(UserServiceParameterResolver.class)
 public class WalletServiceTest {
     @Autowired
-    private  WalletService walletService;
+    private WalletService walletService;
+
     @Mock
     private WalletOutputPort walletOutputPort;
 
 
     @Test
-    public void testThatWalletCanBeCreated(){
+    public void testThatWalletCanBeCreated() throws WalletAlreadyExistAlreadyException {
         Wallet wallet = new Wallet();
         wallet.setId(1L);
         Wallet createdWallet = walletService.createWallet(wallet);
@@ -44,20 +42,20 @@ public class WalletServiceTest {
     }
 
     @Test
-    public void testThatDuplicateWalletCannotBeCreated(){
+    public void testThatDuplicateWalletCannotBeCreated() throws WalletAlreadyExistAlreadyException {
         Wallet wallet = new Wallet();
         wallet.setId(1L);
         wallet.setBalance(BigDecimal.ZERO);
         Wallet createdWallet = walletService.createWallet(wallet);
         assertNotNull(createdWallet);
         assertEquals(1L, createdWallet.getId());
-        assertThrows(WalletAlreadyExistAlreadyException.class,()->walletService.createWallet(wallet));
+        assertThrows(WalletAlreadyExistAlreadyException.class,()-> walletService.createWallet(wallet));
 
     }
     @Sql("/db/data.sql")
     @Test
     public void testThatFundsCanBeDepositedToTheWallet() throws Exception {
-        Wallet wallet = new Wallet(301L, BigDecimal.ZERO); // Initial balance is 0
+        Wallet wallet = new Wallet(302L, BigDecimal.ZERO); // Initial balance is 0
         User user = new User();
         user.setId(501L);
         user.setEmail("praise@gmail.com");
@@ -80,7 +78,7 @@ public class WalletServiceTest {
         wallet.setId(701L);
         wallet.setBalance(BigDecimal.ZERO);
         //WalletEntity updatedWallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new Exception("Wallet not found after deposit"));
-        assertThrows(WalletNotFoundException.class,()->walletService.depositToWallet(wallet, BigDecimal.valueOf(1000.0),user.getId()));
+        assertThrows(WalletNotFoundException.class,()-> walletService.depositToWallet(wallet, BigDecimal.valueOf(1000.0),user.getId()));
     }
 
     @Sql("/db/data.sql")
@@ -90,10 +88,10 @@ public class WalletServiceTest {
         User user = new User();
         user.setId(801L);
         user.setEmail("praise1@gmail.com");
-        wallet.setId(301L);
+        wallet.setId(302L);
         wallet.setBalance(BigDecimal.ZERO);
         //WalletEntity updatedWallet = walletRepository.findById(wallet.getId()).orElseThrow(() -> new Exception("Wallet not found after deposit"));
-        assertThrows(UserNotFoundException.class,()->walletService.depositToWallet(wallet, BigDecimal.valueOf(1000.0),user.getId()));
+        assertThrows(UserNotFoundException.class,()-> walletService.depositToWallet(wallet, BigDecimal.valueOf(1000.0),user.getId()));
     }
 
 

@@ -125,8 +125,8 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
         paymentRepository.save(payment);
         return paymentVerificationResponse;
     }
-
-    public static TransferRecipientResponse createRecipient(String name, String accountNumber, String bankCode) throws Exception {
+    @Override
+    public TransferRecipientResponse createRecipient(String name, String accountNumber, String bankCode) throws Exception {
         TransferRecipient recipient = new TransferRecipient(new RestTemplate());
         recipient.setName(name);
         recipient.setAccountNumber(accountNumber);
@@ -135,7 +135,7 @@ public class PayStackAdapter implements PaystackPaymentOutputPort {
 
         return recipient.create();
     }
-
+    @Override
     public TransferResponse initiateWithdrawal(BigDecimal amount, String recipientCode, String reason) throws Exception {
         Transfer transfer = new Transfer();
         transfer.setSource("balance");

@@ -29,7 +29,7 @@ public class TransactionPersistenceAdapter implements TransactionOutputPort {
     }
 
     @Override
-    public TransactionEntity getTransactionById(Long transactionId) {
+    public TransactionEntity getTransactionById(Long transactionId) throws TransactionNotFoundException {
         Optional<TransactionEntity> transaction = transactionRepository.findById(transactionId);
         if (transaction.isPresent()) {
             return transaction.get();

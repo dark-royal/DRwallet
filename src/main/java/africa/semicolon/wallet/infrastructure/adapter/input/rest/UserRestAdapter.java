@@ -1,10 +1,7 @@
 package africa.semicolon.wallet.infrastructure.adapter.input.rest;
 
 import africa.semicolon.wallet.application.port.input.userUseCases.*;
-import africa.semicolon.wallet.domain.exceptions.IncorrectPaaswordException;
-import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
-import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
-import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
+import africa.semicolon.wallet.domain.exceptions.*;
 import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.CreateUserRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.EditProfileRequest;
@@ -24,17 +21,15 @@ public class UserRestAdapter {
     private final RegisterUserUseCase registerUserUseCase;
     private final EditProfileByNameUseCase editProfileByNameUseCase;
     private final EditProfileByPhoneNumber editProfileByPhoneNumber;
-    private final EditProfileByEmailUseCase editProfileByEmailUseCase;
     private final EditProfileByPassword editProfileByPassword ;
     private final FindUserByEmailUsesCase findUserByEmailUsesCase;
     private final UserRestMapper userRestMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserRestAdapter(RegisterUserUseCase registerUserUseCase, EditProfileByNameUseCase editProfileByNameUseCase, EditProfileByPhoneNumber editProfileByPhoneNumber, EditProfileByEmailUseCase editProfileByEmailUseCase, EditProfileByPassword editProfileByPassword, FindUserByEmailUsesCase findUserByEmailUsesCase, UserRestMapper userRestMapper, PasswordEncoder passwordEncoder) {
+    public UserRestAdapter(RegisterUserUseCase registerUserUseCase, EditProfileByNameUseCase editProfileByNameUseCase, EditProfileByPhoneNumber editProfileByPhoneNumber, EditProfileByPassword editProfileByPassword, FindUserByEmailUsesCase findUserByEmailUsesCase, UserRestMapper userRestMapper, PasswordEncoder passwordEncoder) {
         this.registerUserUseCase = registerUserUseCase;
         this.editProfileByNameUseCase = editProfileByNameUseCase;
         this.editProfileByPhoneNumber = editProfileByPhoneNumber;
-        this.editProfileByEmailUseCase = editProfileByEmailUseCase;
         this.editProfileByPassword = editProfileByPassword;
         this.findUserByEmailUsesCase = findUserByEmailUsesCase;
         this.userRestMapper = userRestMapper;
@@ -66,16 +61,16 @@ public class UserRestAdapter {
         return new ResponseEntity<>(userRestMapper.toEditProfileResponse(user), HttpStatus.OK);
     }
 
-    @PatchMapping("/editEmail")
-    public ResponseEntity<EditProfileResponse> editProfileByEmail(@RequestBody @Validated final EditProfileRequest editProfileRequest) throws UserAlreadyExistsException, UserNotFoundException {
-        User user = userRestMapper.toUser(editProfileRequest);
-        user.setEmail(editProfileRequest.getEmail());
-        user = editProfileByEmailUseCase.editProfileByEmail(user);
-        return new ResponseEntity<>(userRestMapper.toEditProfileResponse(user), HttpStatus.OK);
-    }
+//    @PatchMapping("/editEmail")
+//    public ResponseEntity<EditProfileResponse> editProfileByEmail(@RequestBody @Validated final EditProfileRequest editProfileRequest) throws UserAlreadyExistsException, UserNotFoundException {
+//        User user = userRestMapper.toUser(editProfileRequest);
+//        user.setEmail(editProfileRequest.getEmail());
+//        user = editProfileByEmailUseCase.editProfileByEmail(user);
+//        return new ResponseEntity<>(userRestMapper.toEditProfileResponse(user), HttpStatus.OK);
+//    }
 
     @PatchMapping("/editPassword")
-    public ResponseEntity<EditProfileResponse> editProfileByPassword(@RequestBody @Validated final EditProfileRequest editProfileRequest) throws UserAlreadyExistsException, UserNotFoundException, IncorrectPaaswordException {
+    public ResponseEntity<EditProfileResponse> editProfileByPassword(@RequestBody @Validated final EditProfileRequest editProfileRequest) throws UserAlreadyExistsException, UserNotFoundException, IncorrectPaaswordException, InvalidPasswordException {
         User user = userRestMapper.toUser(editProfileRequest);
         user.setPassword(editProfileRequest.getPhoneNumber());
         user = editProfileByPassword.editProfileByPassword(user);

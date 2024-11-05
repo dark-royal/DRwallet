@@ -42,7 +42,7 @@ public class TransactionRestAdapter {
     }
 
     @GetMapping("/get-all-transaction")
-    public ResponseEntity<?> getAllTransaction(@PathVariable GetAllTransactionRequest getAllTransactionRequest){
+    public ResponseEntity<?> getAllTransaction(@PathVariable GetAllTransactionRequest getAllTransactionRequest) throws UserNotFoundException {
         List<TransactionEntity> transaction = transactionRestMapper.toGetTransaction(getAllTransactionRequest);
         transaction = getAllTransactionByUserIdUseCase.getAllTransactionByUserId(transaction.getFirst().getUserId());
         return new ResponseEntity<>(transactionRestMapper.toGetAllTransactionResponse(transaction),HttpStatus.OK);

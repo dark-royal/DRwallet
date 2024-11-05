@@ -6,6 +6,7 @@ import africa.semicolon.wallet.application.port.input.walletUseCases.FindWalletB
 import africa.semicolon.wallet.domain.exceptions.UserAlreadyExistsException;
 import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.exceptions.WalletAlreadyExistAlreadyException;
+import africa.semicolon.wallet.domain.exceptions.WalletNotFoundException;
 import africa.semicolon.wallet.domain.models.Wallet;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.CreateWalletRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.DepositToWalletRequest;
@@ -47,7 +48,7 @@ public class WalletRestAdapter {
 
 
     @GetMapping("/find")
-    public ResponseEntity<FindWalletResponse> findWalletById(@RequestBody FindWalletRequest findWalletRequest) {
+    public ResponseEntity<FindWalletResponse> findWalletById(@RequestBody FindWalletRequest findWalletRequest) throws WalletNotFoundException {
         Wallet wallet = walletRestMapper.toFindWallet(findWalletRequest);
         wallet = findWalletByIdUsesCase.findWalletById(wallet.getId());
         return new ResponseEntity<>(walletRestMapper.tofindWalletResponse(wallet), HttpStatus.OK);
@@ -55,7 +56,7 @@ public class WalletRestAdapter {
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<DepositToWalletResponse> deposit(@RequestBody DepositToWalletRequest depositToWalletRequest){
+    public ResponseEntity<DepositToWalletResponse> deposit(@RequestBody DepositToWalletRequest depositToWalletRequest) throws UserNotFoundException, WalletNotFoundException {
         Wallet wallet = walletRestMapper.toDepositToWallet(depositToWalletRequest);
         wallet.setBalance(depositToWalletRequest.getAmount());
         wallet.setId(depositToWalletRequest.getWalletId().getId());

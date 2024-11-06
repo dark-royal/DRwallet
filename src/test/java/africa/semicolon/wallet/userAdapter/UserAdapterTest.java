@@ -3,6 +3,7 @@ package africa.semicolon.wallet.userAdapter;
 import africa.semicolon.wallet.UserServiceParameterResolver;
 import africa.semicolon.wallet.domain.exceptions.*;
 import africa.semicolon.wallet.domain.models.User;
+import africa.semicolon.wallet.domain.models.Wallet;
 import africa.semicolon.wallet.domain.service.UserService;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.LoginUserRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.LoginUserResponse;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +103,7 @@ UserAdapterTest {
         user.setPhoneNumber("09038942436");
         user.setFirstName("Hannah");
         user.setLastName("david");
-        User user1 = userService.udateUser(user);
+        User user1 = userService.updateUser(user);
         assertThat(user1).isNotNull();
     }
 
@@ -112,7 +115,36 @@ UserAdapterTest {
         user.setPhoneNumber("09038942436");
         user.setFirstName("Hannah");
         user.setLastName("david");
-        assertThrows(UserNotFoundException.class, () -> userService.udateUser(user));
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(user));
+
+    }
+
+    @Test
+    public void testThatUserCanBeDeleted() throws UserNotFoundException {
+        User user = new User();
+        user.setId(3L);
+        userService.deleteUser(user.getId());
+        assertThat(user).isNotNull();
+
+    }
+
+    @Test
+    public void testThatUserWithInvalidIdCannotBeDeleted() throws UserNotFoundException {
+        User user = new User();
+        user.setId(8L);
+        assertThrows(UserNotFoundException.class,()->userService.deleteUser(user.getId()));
+
+    }
+
+    @Test
+    public void testThatUserCanMakeDeposit(){
+        User user = new User();
+        Wallet wallet = new Wallet();
+        user.setId(6L);
+        wallet.setId(6L);
+        user.setEmail("cheist4@gmail.com");
+        BigDecimal amount = BigDecimal.valueOf(1000.0);
+
 
     }
 

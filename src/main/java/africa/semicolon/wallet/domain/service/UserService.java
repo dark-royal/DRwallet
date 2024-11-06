@@ -102,7 +102,7 @@ public class UserService implements RegisterUserUseCase, FindUserByEmailUsesCase
 }
 
     @Override
-    public User udateUser(User user) throws UserNotFoundException, PhoneNumberNotFoundException, UserAlreadyExistsException {
+    public User updateUser(User user) throws UserNotFoundException, PhoneNumberNotFoundException, UserAlreadyExistsException {
         User existinUser = getUserById(user.getId());
         if(!existinUser.getEmail().equals(user.getEmail())){
             throw new UserNotFoundException("user not found");

@@ -39,8 +39,9 @@ public class UserRestMapperImpl implements UserRestMapper {
     @Override
     public User toUser(EditProfileRequest editProfileRequest) {
         User user = new User();
-        user.setFirstName(editProfileRequest.getName());
+        user.setFirstName(editProfileRequest.getFirstName());
         user.setEmail(editProfileRequest.getEmail());
+        user.setLastName(editProfileRequest.getLastName());
         user.setPhoneNumber(editProfileRequest.getPhoneNumber());
         return user;
     }
@@ -49,7 +50,8 @@ public class UserRestMapperImpl implements UserRestMapper {
     public EditProfileResponse toEditProfileResponse(User user) {
         EditProfileResponse editProfileResponse = new EditProfileResponse();
         editProfileResponse.setId(user.getId());
-        editProfileResponse.setName(user.getFirstName());
+        editProfileResponse.setFirstName(user.getFirstName());
+        editProfileResponse.setLastName(user.getLastName());
         editProfileResponse.setEmail(user.getEmail());
         editProfileResponse.setPhoneNumber(user.getPhoneNumber());
 

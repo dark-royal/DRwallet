@@ -6,5 +6,5 @@ import africa.semicolon.wallet.domain.exceptions.UserNotFoundException;
 import africa.semicolon.wallet.domain.models.User;
 
 public interface UpdateUserDetailsUseCase {
-    User udateUser(User user) throws UserNotFoundException, PhoneNumberNotFoundException, UserAlreadyExistsException;
+    User updateUser(User user) throws UserNotFoundException, PhoneNumberNotFoundException, UserAlreadyExistsException;
 }

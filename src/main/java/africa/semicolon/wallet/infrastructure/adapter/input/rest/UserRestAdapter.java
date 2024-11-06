@@ -27,16 +27,20 @@ public class UserRestAdapter {
     private final UserRestMapper userRestMapper;
     private final PasswordEncoder passwordEncoder;
     private final LoginUserUseCase loginUserUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
+    private final UpdateUserDetailsUseCase updateUserDetailsUseCase;
 
 
 
-    public UserRestAdapter(RegisterUserUseCase registerUserUseCase, RegisterUserUseCase registerUserUseCase1, FindUserByEmailUsesCase findUserByEmailUsesCase, UserRestMapper userRestMapper, PasswordEncoder passwordEncoder, LoginUserUseCase loginUserUseCase){
+    public UserRestAdapter(RegisterUserUseCase registerUserUseCase, RegisterUserUseCase registerUserUseCase1, FindUserByEmailUsesCase findUserByEmailUsesCase, UserRestMapper userRestMapper, PasswordEncoder passwordEncoder, LoginUserUseCase loginUserUseCase, DeleteUserUseCase deleteUserUseCase, UpdateUserDetailsUseCase updateUserDetailsUseCase){
         this.registerUserUseCase = registerUserUseCase1;
         this.findUserByEmailUsesCase = findUserByEmailUsesCase;
         this.userRestMapper = userRestMapper;
         this.passwordEncoder = passwordEncoder;
 
         this.loginUserUseCase = loginUserUseCase;
+        this.deleteUserUseCase = deleteUserUseCase;
+        this.updateUserDetailsUseCase = updateUserDetailsUseCase;
     }
 
     @PostMapping(value = "/register")
@@ -61,6 +65,21 @@ public class UserRestAdapter {
     public ResponseEntity<?> login(@RequestBody LoginUserRequest loginUserRequest) throws UserNotFoundException, AuthenticationException, InvalidPasswordException {
         LoginUserResponse loginUserResponse = loginUserUseCase.loginUser(loginUserRequest);
         return new ResponseEntity<>(userRestMapper.toLoginUserResponse(loginUserRequest),HttpStatus.OK);
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> delete(@PathVariable Long userId ) throws UserNotFoundException {
+        deleteUserUseCase.deleteUser(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<?> update(@RequestBody EditProfileRequest editProfileRequest) throws UserNotFoundException, PhoneNumberNotFoundException, UserAlreadyExistsException {
+        User user = userRestMapper.toUser(editProfileRequest);
+        user = updateUserDetailsUseCase.updateUser(user);
+        return new ResponseEntity<>(userRestMapper.toEditProfileResponse(user), HttpStatus.OK);
+
+
     }
 
 }

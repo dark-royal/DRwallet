@@ -48,6 +48,17 @@ public class UserPersistenceAdapter implements UserOutputPort {
         return userRepository.existsById(userId);
     }
 
+    @Override
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    public User findByPhoneNumber(String phoneNumber) {
+
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
+
     public UserEntity getUserEntityById(Long id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));

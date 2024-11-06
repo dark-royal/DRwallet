@@ -1,5 +1,7 @@
 package africa.semicolon.wallet;
 
+import africa.semicolon.wallet.application.port.output.IdentityOutputPort;
+import africa.semicolon.wallet.application.port.output.PremblyOutputPort;
 import africa.semicolon.wallet.application.port.output.UserOutputPort;
 import africa.semicolon.wallet.application.port.output.WalletOutputPort;
 import africa.semicolon.wallet.domain.service.TransactionService;
@@ -21,6 +23,8 @@ public class UserServiceParameterResolver implements ParameterResolver {
     private TransactionService transactionService;
     private UserPersistenceMapper userPersistenceMapper;
     private PasswordEncoder passwordEncoder;
+    private PremblyOutputPort premblyOutputPort;
+    private IdentityOutputPort identityOutputPort;
 
 
     @Override
@@ -30,6 +34,6 @@ public class UserServiceParameterResolver implements ParameterResolver {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return new UserService(userOutputPort, keycloakAdapter, walletService, walletOutputPort, transactionService, userPersistenceMapper, passwordEncoder);
+        return new UserService(userOutputPort, keycloakAdapter, walletService, walletOutputPort, transactionService, userPersistenceMapper, passwordEncoder,premblyOutputPort,identityOutputPort);
     }
 }

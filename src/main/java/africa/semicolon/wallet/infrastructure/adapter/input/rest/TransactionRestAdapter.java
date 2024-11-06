@@ -12,6 +12,7 @@ import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.Cr
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.GetAllTransactionRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.CreateTransactionResponse;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.CreateUserResponse;
+import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.GetAllTransactionResponse;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.mappers.TransactionRestMapper;
 import africa.semicolon.wallet.infrastructure.adapter.persistence.entities.TransactionEntity;
 import org.springframework.context.annotation.Bean;
@@ -41,11 +42,15 @@ public class TransactionRestAdapter {
             return  new ResponseEntity<>(transactionRestMapper.toCreateTransactionResponse(transaction), HttpStatus.CREATED);
     }
 
+
+
     @GetMapping("/get-all-transaction")
-    public ResponseEntity<?> getAllTransaction(@PathVariable GetAllTransactionRequest getAllTransactionRequest) throws UserNotFoundException {
-        List<TransactionEntity> transaction = transactionRestMapper.toGetTransaction(getAllTransactionRequest);
-        transaction = getAllTransactionByUserIdUseCase.getAllTransactionByUserId(transaction.getFirst().getUserId());
-        return new ResponseEntity<>(transactionRestMapper.toGetAllTransactionResponse(transaction),HttpStatus.OK);
+    public ResponseEntity<?> getAllTransaction(@RequestBody GetAllTransactionRequest getAllTransactionRequest) throws UserNotFoundException {
+        Long userId = transactionRestMapper.toUserId(getAllTransactionRequest);
+        List<Transaction> transactions = getAllTransactionByUserIdUseCase.getAllTransactionByUserId(userId);
+        List<GetAllTransactionResponse> response = transactionRestMapper.toGetAllTransactionResponse(transactions);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
 }

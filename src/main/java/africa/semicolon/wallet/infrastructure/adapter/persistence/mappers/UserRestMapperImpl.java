@@ -4,9 +4,11 @@ import africa.semicolon.wallet.domain.models.User;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.CreateUserRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.EditProfileRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.FindUserRequest;
+import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.request.LoginUserRequest;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.CreateUserResponse;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.EditProfileResponse;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.FindUserResponse;
+import africa.semicolon.wallet.infrastructure.adapter.input.rest.dtos.response.LoginUserResponse;
 import africa.semicolon.wallet.infrastructure.adapter.input.rest.mappers.UserRestMapper;
 
 public class UserRestMapperImpl implements UserRestMapper {
@@ -37,6 +39,11 @@ public class UserRestMapperImpl implements UserRestMapper {
 
     @Override
     public FindUserResponse toFindUserResponse(User user) {
+        return null;
+    }
+
+    @Override
+    public LoginUserResponse toLoginUserResponse(LoginUserRequest loginUserRequest) {
         return null;
     }
 }

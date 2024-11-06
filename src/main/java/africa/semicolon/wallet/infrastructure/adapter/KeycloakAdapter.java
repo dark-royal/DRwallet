@@ -71,7 +71,7 @@ public class KeycloakAdapter implements IdentityOutputPort {
         if (response.getStatus() != STATUS_CREATED) {
             throw new UserNotFoundException("Failed to create user in Keycloak");
         }
-        String userId = getUserByUsername(user.getEmail()).getId();
+        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         assignRole(userId, user.getRole());
         user.setKeycloakId(userId);
 
@@ -93,11 +93,10 @@ public class KeycloakAdapter implements IdentityOutputPort {
         }
     }
 
-    // Assign Role
     @Override
-    public void assignRole(String userId, Role role) {
+    public void assignRole(String userId, String role) {
         UserResource user = getUserById(userId);
-        RoleRepresentation roleRepresentation = getRolesResource().get(role.name()).toRepresentation();
+        RoleRepresentation roleRepresentation = getRolesResource().get(role).toRepresentation();
         user.roles().realmLevel().add(Collections.singletonList(roleRepresentation));
     }
 
@@ -167,9 +166,24 @@ public class KeycloakAdapter implements IdentityOutputPort {
 
     }
 
+    @Override
+    public void sendVerificationEmail() {
+
+    }
+
     private RolesResource getRolesResource() {
         return keycloak.realm(realm).roles();
     }
 
-
+    @Override
+    public void editUser(String keycloakId, User user){
+//        UserResource userResource = getUsersResource().get(keycloakId);
+        UserRepresentation userRepresentation = getUsersResource().search(keycloakId, true).getFirst();
+        UserResource userResource = getUsersResource().get(userRepresentation.getId());
+        if(user.getEmail() != null) userRepresentation.setEmail(user.getEmail());
+        if(user.getFirstName() != null) userRepresentation.setFirstName(user.getFirstName());
+        if(user.getLastName() != null) userRepresentation.setLastName(user.getLastName());
+        if(user.getEmail() != null) userRepresentation.setUsername(user.getEmail());
+        userResource.update(userRepresentation);
+    }
 }

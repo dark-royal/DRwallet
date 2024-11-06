@@ -13,5 +13,8 @@ public interface UserOutputPort {
     boolean existsByEmail(String email);
 
     boolean existById(Long userId);
+    void deleteUser(Long userId);
+
+    User findByPhoneNumber(String phoneNumber);
 
 }

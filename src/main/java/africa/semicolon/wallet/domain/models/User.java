@@ -17,8 +17,9 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
+    private String bvnNumber;
     private String keycloakId;
-    private Role role;
+    private String role;
     @CreatedDate
     private LocalDateTime createdOn;
     private List<Transaction> transactions;

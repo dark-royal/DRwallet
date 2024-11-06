@@ -15,6 +15,7 @@ public class Transaction {
     private Long id;
     private Long walletId;
     private Long userId;
+    private String userEmail;
     private TransactionType transactionType;
     private BigDecimal amount;
     private String description;

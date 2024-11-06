@@ -33,19 +33,18 @@ public class TransactionRestMapperImpl implements TransactionRestMapper{
     }
 
     @Override
-    public List<TransactionEntity> toGetTransaction(GetAllTransactionRequest getAllTransactionRequest) {
-        TransactionEntity transactionEntity = new TransactionEntity();
-        transactionEntity.setUserId(getAllTransactionRequest.getUserId());
-        return List.of(transactionEntity);
+    public Long toUserId(GetAllTransactionRequest getAllTransactionRequest) {
+        return getAllTransactionRequest.getUserId();
     }
 
+
     @Override
-    public GetAllTransactionResponse toGetAllTransactionResponse(List<TransactionEntity> transaction) {
+    public List<GetAllTransactionResponse> toGetAllTransactionResponse(List<Transaction> transaction) {
         GetAllTransactionResponse response = new GetAllTransactionResponse();
         response.setStatus(transaction.getFirst().getStatus());
         response.setAmount(transaction.getFirst().getAmount());
         response.setUserId(transaction.getFirst().getUserId());
         response.setUserId(transaction.getFirst().getUserId());
-        return response;
+        return List.of(response);
     }
 }

@@ -1,9 +1,6 @@
 package africa.semicolon.wallet.infrastructure.adapter.config;
 
-import africa.semicolon.wallet.application.port.output.PaystackPaymentOutputPort;
-import africa.semicolon.wallet.application.port.output.TransactionOutputPort;
-import africa.semicolon.wallet.application.port.output.UserOutputPort;
-import africa.semicolon.wallet.application.port.output.WalletOutputPort;
+import africa.semicolon.wallet.application.port.output.*;
 import africa.semicolon.wallet.domain.service.TransactionService;
 import africa.semicolon.wallet.domain.service.UserService;
 import africa.semicolon.wallet.domain.service.WalletService;
@@ -45,8 +42,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public UserService userService(UserOutputPort userOutputPort, KeycloakAdapter keycloakAdapter, WalletService walletService, WalletOutputPort walletOutputPort, TransactionService transactionService, UserPersistenceMapper userPersistenceMapper, PasswordEncoder passwordEncoder){
-        return new UserService(userOutputPort,keycloakAdapter, walletService, walletOutputPort, transactionService,userPersistenceMapper, passwordEncoder);
+    public UserService userService(UserOutputPort userOutputPort, KeycloakAdapter keycloakAdapter, WalletService walletService, WalletOutputPort walletOutputPort, TransactionService transactionService, UserPersistenceMapper userPersistenceMapper, PasswordEncoder passwordEncoder, PremblyOutputPort premblyOutputPort, IdentityOutputPort identityOutputPort){
+        return new UserService(userOutputPort,keycloakAdapter, walletService, walletOutputPort, transactionService,userPersistenceMapper, passwordEncoder,premblyOutputPort,identityOutputPort);
     }
 
 
@@ -147,5 +144,6 @@ public class BeanConfig {
     public PremblyAdapter premblyAdapter(RestTemplate restTemplate, WebClient.Builder webClientBuilder){
         return  new PremblyAdapter(restTemplate,webClientBuilder);
     }
+
 }
       

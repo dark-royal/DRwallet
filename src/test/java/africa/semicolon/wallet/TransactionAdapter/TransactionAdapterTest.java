@@ -36,6 +36,7 @@ public class TransactionAdapterTest {
         Transaction transaction = Transaction.builder()
                 .createdAt(LocalDateTime.now())
                 .walletId(302L)
+                .userId(2L)
                 .status(PENDING)
                 .description("MY TRANSACTION")
                 .amount(BigDecimal.valueOf(1200))
@@ -53,6 +54,7 @@ public class TransactionAdapterTest {
                 .createdAt(LocalDateTime.now())
                 .walletId(302L) // Assuming you have a wallet ID setup
                 .userId(501L)
+                .userEmail("cheist@gmail.com")
                 .status(PENDING)
                 .description("MY TRANSACTION")
                 .amount(BigDecimal.valueOf(1200))

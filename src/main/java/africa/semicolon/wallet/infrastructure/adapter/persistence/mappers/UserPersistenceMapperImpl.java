@@ -18,6 +18,7 @@ public class UserPersistenceMapperImpl implements UserPersistenceMapper {
         userEntity.setRole(user.getRole());
         userEntity.setLastName(user.getLastName());
         userEntity.setEmail(user.getEmail());
+        userEntity.setPhoneNumber(user.getPhoneNumber());
         userEntity.setPassword(user.getPassword());
         userEntity.setWallet(walletEntity);
 
@@ -34,6 +35,7 @@ public class UserPersistenceMapperImpl implements UserPersistenceMapper {
         user.setId(userEntity.getId());
         user.setFirstName(userEntity.getFirstName());
         user.setRole(userEntity.getRole());
+        user.setPhoneNumber(userEntity.getPhoneNumber());
         user.setLastName(userEntity.getLastName());
         user.setPassword(userEntity.getPassword());
         user.setEmail(userEntity.getEmail());

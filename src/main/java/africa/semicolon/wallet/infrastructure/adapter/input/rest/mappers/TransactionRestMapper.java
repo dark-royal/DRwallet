@@ -18,10 +18,11 @@ public interface TransactionRestMapper {
 
         CreateTransactionResponse toCreateTransactionResponse(Transaction transaction);
 
-        List<TransactionEntity> toGetTransaction(GetAllTransactionRequest getAllTransactionRequest);
-        GetAllTransactionResponse toGetAllTransactionResponse(List<TransactionEntity> transaction);
+        Long toUserId(GetAllTransactionRequest getAllTransactionRequest);
 
-
+        List<GetAllTransactionResponse> toGetAllTransactionResponse(List<Transaction> transactions);
     }
+
+
 
 

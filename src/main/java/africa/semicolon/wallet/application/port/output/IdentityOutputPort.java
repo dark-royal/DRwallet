@@ -13,9 +13,11 @@ public interface IdentityOutputPort {
     void deleteUser(String id);
     User createUser(User user)throws UserNotFoundException;
     LoginUserResponse loginUser(LoginUserRequest loginUserRequest) throws AuthenticationException;
-    void assignRole(String userId, Role role);
+    void assignRole(String userId, String role);
     UserResource getUserById(String userId);
     void forgetPassword(String username) throws UserNotFoundException;
+    void sendVerificationEmail();
+    void editUser(String keycloakId, User user);
 
 
 }

@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Setter
@@ -19,7 +20,9 @@ public class UserEntity {
     private Long id;
     private String firstName;
     private String lastName;
-    private Role role;
+    private String role;
+    @OneToMany
+    private List<TransactionEntity> transactions;
     @Column(unique = true)
     private String email;
 
